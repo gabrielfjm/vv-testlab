@@ -1,0 +1,29 @@
+{
+  "runId": "MUTATION-20261001-160216",
+  "finishedAt": "2026-10-01T16:10:43-03:00",
+  "tool": "cosmic-ray",
+  "duration": 507.11,
+  "exitCode": 0,
+  "stats": {
+    "total": 141,
+    "killed": 134,
+    "survived": 7,
+    "skipped": 0,
+    "timeout": 0,
+    "incompetent": 0,
+    "noTests": 0,
+    "suspicious": 0,
+    "pending": 0,
+    "rawTotal": 141,
+    "score": 95.04
+  },
+  "environment": "Python 3.9.25 / Windows 10",
+  "command": [
+    "C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.venv-mutation\\Scripts\\python.exe",
+    "C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\scripts\\selecionar_mutantes.py",
+    "C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.vvtestlab\\cosmic-ray-20261001-160216.sqlite",
+    "C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.vvtestlab\\cosmic-ray-20261001-160216-manifest.json"
+  ],
+  "stdout": "141 mutantes nas funções do recorte -> C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.vvtestlab\\cosmic-ray-20261001-160216.sqlite\n\n",
+  "stderr": "\n\n"
+}

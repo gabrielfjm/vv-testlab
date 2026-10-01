@@ -1,0 +1,574 @@
+{
+  "project": {
+    "name": "Hotel Management System — V&V",
+    "repository": "https://github.com/gabrielfjm/Hotel_Management_System",
+    "purpose": "Testar a reserva de quartos e as regras das datas de entrada e de saída de um sistema web Flask de terceiros (CrystalWang1225/Hotel_Management_System, commit 71b396b). Requisitos funcionais do sistema: RF-01 Cadastrar usuário; RF-02 Entrar/sair (sessão); RF-03 Listar quartos; RF-04 Consultar disponibilidade; RF-05 Reservar quartos; RF-06 Minha conta; RF-07 Alterar reserva; RF-08 Cancelar reserva; RF-09 Registrar pagamento. Recorte testado: REQ-01 Reservar quartos (RF-05), REQ-02 Data de entrada e REQ-03 Data de saída. RF-04 (consulta) e RF-08 (cancelamento) têm testes complementares no repositório (DEF-08 a DEF-14, DEF-16 e DEF-17, no relatório); os demais estão documentados.",
+    "coverageTarget": 100,
+    "currentPhase": "Funcional",
+    "localRepository": "C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado",
+    "bridgeUrl": "http://127.0.0.1:8765",
+    "autoCreateDefects": "Sim",
+    "mutationTool": "cosmic-ray",
+    "cosmicRayConfig": "cosmic-ray.toml",
+    "cosmicRaySelector": "scripts/selecionar_mutantes.py",
+    "mutationPython": ".venv-mutation/Scripts/python.exe",
+    "coverageSource": "hotel.views",
+    "coverageFunctions": "reserve,cal_cost,_sessao_autenticada,_periodos_conflitam,_quartos_ocupados,_ler_quartos",
+    "pytestArgs": "tests -m 'funcional or estrutural or mutacao'",
+    "loc": 354,
+    "functions": 19,
+    "codeClasses": 12,
+    "modules": 5
+  },
+  "requirements": [
+    {
+      "id": "REQ-01",
+      "title": "Reservar quartos",
+      "method": "reserve",
+      "description": "Reservar um ou mais quartos (números inteiros, existentes, sem repetição) para 1 até a capacidade somada de hóspedes, somente se nenhum quarto tiver estadia com interseção no período; grava a reserva, os quartos escolhidos e o custo.",
+      "priority": "Alta",
+      "status": "Em análise"
+    },
+    {
+      "id": "REQ-02",
+      "title": "Data de entrada (check-in)",
+      "method": "_periodos_conflitam",
+      "description": "A data de entrada deve estar no formato MM/DD/AAAA, não pode ser passada (hoje é permitido) e uma estadia pode começar no dia em que outra do mesmo quarto termina.",
+      "priority": "Alta",
+      "status": "Em análise"
+    },
+    {
+      "id": "REQ-03",
+      "title": "Data de saída (check-out)",
+      "method": "cal_cost",
+      "description": "A data de saída deve estar no formato MM/DD/AAAA e ser posterior à entrada (mínimo 1 noite); define o número de diárias cobradas e pode coincidir com a entrada de outra estadia do mesmo quarto.",
+      "priority": "Alta",
+      "status": "Em análise"
+    }
+  ],
+  "classes": [
+    {
+      "id": "CE-01",
+      "requirementId": "REQ-01",
+      "name": "Usuário autenticado",
+      "condition": "Sessão",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-02",
+      "requirementId": "REQ-01",
+      "name": "Sem sessão (nunca fez login) ou sessão encerrada",
+      "condition": "Sessão",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-03",
+      "requirementId": "REQ-01",
+      "name": "Números inteiros separados por vírgula",
+      "condition": "Formato dos quartos",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-04",
+      "requirementId": "REQ-01",
+      "name": "Texto não numérico",
+      "condition": "Formato dos quartos",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-05",
+      "requirementId": "REQ-01",
+      "name": "Todos os quartos existem",
+      "condition": "Existência dos quartos",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-06",
+      "requirementId": "REQ-01",
+      "name": "Algum quarto não existe",
+      "condition": "Existência dos quartos",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-07",
+      "requirementId": "REQ-01",
+      "name": "Sem repetição",
+      "condition": "Repetição de quartos",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-08",
+      "requirementId": "REQ-01",
+      "name": "Quarto repetido",
+      "condition": "Repetição de quartos",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-09",
+      "requirementId": "REQ-01",
+      "name": "Um quarto",
+      "condition": "Quantidade de quartos",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-10",
+      "requirementId": "REQ-01",
+      "name": "Vários quartos (custo e capacidade somados)",
+      "condition": "Quantidade de quartos",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-11",
+      "requirementId": "REQ-01",
+      "name": "Inteiro de 1 até a capacidade somada dos quartos",
+      "condition": "Nº de hóspedes",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-12",
+      "requirementId": "REQ-01",
+      "name": "Menor que 1",
+      "condition": "Nº de hóspedes",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-13",
+      "requirementId": "REQ-01",
+      "name": "Maior que a capacidade somada",
+      "condition": "Nº de hóspedes",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-14",
+      "requirementId": "REQ-01",
+      "name": "Não inteiro (texto)",
+      "condition": "Nº de hóspedes",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-15",
+      "requirementId": "REQ-01",
+      "name": "Nenhuma estadia do quarto com interseção (inclui estadias adjacentes e reservas de outros quartos)",
+      "condition": "Ocupação do quarto no período",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-16",
+      "requirementId": "REQ-01",
+      "name": "Estadia existente do quarto com interseção de ao menos uma noite",
+      "condition": "Ocupação do quarto no período",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-17",
+      "requirementId": "REQ-02",
+      "name": "Hoje ou data futura",
+      "condition": "Entrada em relação a hoje",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-18",
+      "requirementId": "REQ-02",
+      "name": "Data passada",
+      "condition": "Entrada em relação a hoje",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-19",
+      "requirementId": "REQ-02",
+      "name": "Entrada e saída válidas no formato MM/DD/AAAA",
+      "condition": "Formato das datas",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-20",
+      "requirementId": "REQ-02",
+      "name": "Data malformada, inexistente ou ausente",
+      "condition": "Formato das datas",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-21",
+      "requirementId": "REQ-03",
+      "name": "1 noite ou mais; cada noite é uma diária cobrada",
+      "condition": "Duração da reserva (saída − entrada)",
+      "type": "Válida",
+      "min": null,
+      "max": null
+    },
+    {
+      "id": "CE-22",
+      "requirementId": "REQ-03",
+      "name": "0 noites ou negativa (saída igual ou anterior à entrada)",
+      "condition": "Duração da reserva (saída − entrada)",
+      "type": "Inválida",
+      "min": null,
+      "max": null
+    }
+  ],
+  "testCases": [
+    {
+      "id": "CT-001",
+      "requirementId": "REQ-01",
+      "classId": "CE-01",
+      "classIds": [
+        "CE-01",
+        "CE-03",
+        "CE-05",
+        "CE-07",
+        "CE-09",
+        "CE-11",
+        "CE-15",
+        "CE-17",
+        "CE-19",
+        "CE-21"
+      ],
+      "title": "Reserva simples de um quarto é aceita",
+      "input": "Quarto 101 para 1 hóspede, de 10/03/2030 a 12/03/2030 (2 noites)",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela reserva o quarto 101 para 1 hóspede, de 10/03/2030 a 12/03/2030 (2 noites)."
+      ],
+      "expected": "Reserva aceita, com custo de R$ 200",
+      "validity": "Válido",
+      "technique": "AVL",
+      "priority": "Média",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-002",
+      "requirementId": "REQ-01",
+      "classId": "CE-10",
+      "classIds": [
+        "CE-10",
+        "CE-11",
+        "CE-05"
+      ],
+      "title": "Reserva de dois quartos com lotacao maxima é aceita",
+      "input": "Quartos 101 e 102 juntos para 5 hóspedes (a capacidade somada), de 10/03/2030 a 13/03/2030",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela reserva os quartos 101 e 102 juntos, para 5 hóspedes, de 10/03/2030 a 13/03/2030 (3 noites)."
+      ],
+      "expected": "Reserva aceita, com custo de R$ 750",
+      "validity": "Válido",
+      "technique": "AVL",
+      "priority": "Média",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-003",
+      "requirementId": "REQ-01",
+      "classId": "CE-15",
+      "classIds": [
+        "CE-15",
+        "CE-17",
+        "CE-21"
+      ],
+      "title": "Estadia que comeca quando outra termina é aceita",
+      "input": "Quarto 101 ocupado de 10/03/2030 a 12/03/2030; nova reserva de 12/03/2030 a 14/03/2030 (entra no dia em que a outra sai)",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Já existe uma reserva do quarto 101 de 10/03/2030 a 12/03/2030.",
+        "Ana tenta reservar o mesmo quarto 101 de 12/03/2030 a 14/03/2030 (entra no dia em que a outra pessoa sai)."
+      ],
+      "expected": "Reserva aceita",
+      "validity": "Válido",
+      "technique": "AVL",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-004",
+      "requirementId": "REQ-02",
+      "classId": "CE-17",
+      "classIds": [
+        "CE-17",
+        "CE-21"
+      ],
+      "title": "Entrada hoje é aceita",
+      "input": "Entrada hoje e saída amanhã (1 noite)",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela reserva o quarto 101 entrando HOJE e saindo amanhã (1 noite)."
+      ],
+      "expected": "Reserva aceita, com custo de uma diária (R$ 100)",
+      "validity": "Válido",
+      "technique": "AVL",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-005",
+      "requirementId": "REQ-01",
+      "classId": "CE-02",
+      "classIds": [
+        "CE-02"
+      ],
+      "title": "Visitante sem login não reserva",
+      "input": "Visitante sem login abre e envia o formulário de reserva",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ninguém está logado (a sessão nem tem a informação de login).",
+        "O visitante abre o formulário de reserva e depois tenta enviar uma reserva."
+      ],
+      "expected": "Volta para a página inicial e nada é gravado",
+      "validity": "Inválido",
+      "technique": "CE",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-006",
+      "requirementId": "REQ-01",
+      "classId": "CE-04",
+      "classIds": [
+        "CE-04"
+      ],
+      "title": "Quarto escrito em texto e recusado",
+      "input": "Campo de quartos preenchido com \"abc\"",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "No campo de quartos ela digita 'abc' (o resto do formulário está correto: 2 hóspedes, de 10/03/2030 a 12/03/2030)."
+      ],
+      "expected": "Reserva recusada e nada gravado",
+      "validity": "Inválido",
+      "technique": "CE",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-007",
+      "requirementId": "REQ-01",
+      "classId": "CE-06",
+      "classIds": [
+        "CE-06"
+      ],
+      "title": "Quarto que não existe e recusado",
+      "input": "Quartos 101 e 999 (o 999 não existe) para 2 hóspedes",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela pede os quartos '101,999' para 2 hóspedes, de 10/03/2030 a 12/03/2030."
+      ],
+      "expected": "Reserva recusada e nada gravado",
+      "validity": "Inválido",
+      "technique": "CE",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-008",
+      "requirementId": "REQ-01",
+      "classId": "CE-08",
+      "classIds": [
+        "CE-08"
+      ],
+      "title": "Quarto repetido e recusado",
+      "input": "Quarto 101 repetido (\"101,101\") para 2 hóspedes",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela pede os quartos '101,101' para 2 hóspedes, de 10/03/2030 a 12/03/2030."
+      ],
+      "expected": "Reserva recusada",
+      "validity": "Inválido",
+      "technique": "CE",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-009",
+      "requirementId": "REQ-01",
+      "classId": "CE-12",
+      "classIds": [
+        "CE-12"
+      ],
+      "title": "Reserva sem hóspedes e recusada",
+      "input": "Reserva para 0 hóspedes",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela reserva o 101 para 0 hóspedes, de 10/03/2030 a 12/03/2030."
+      ],
+      "expected": "Reserva recusada e nada gravado",
+      "validity": "Inválido",
+      "technique": "AVL",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-010",
+      "requirementId": "REQ-01",
+      "classId": "CE-13",
+      "classIds": [
+        "CE-13"
+      ],
+      "title": "Hóspedes acima da capacidade são recusados",
+      "input": "Quartos 101 e 102 para 6 hóspedes (cabem só 5)",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela reserva 101 e 102 para 6 hóspedes, de 10/03/2030 a 12/03/2030."
+      ],
+      "expected": "Reserva recusada",
+      "validity": "Inválido",
+      "technique": "AVL",
+      "priority": "Média",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-011",
+      "requirementId": "REQ-01",
+      "classId": "CE-14",
+      "classIds": [
+        "CE-14"
+      ],
+      "title": "Hóspedes escritos por extenso são recusados",
+      "input": "Número de hóspedes escrito por extenso: \"dois\"",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "No campo de hóspedes ela digita 'dois' (reserva do 101 de 10/03/2030 a 12/03/2030)."
+      ],
+      "expected": "Reserva recusada",
+      "validity": "Inválido",
+      "technique": "CE",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-012",
+      "requirementId": "REQ-01",
+      "classId": "CE-16",
+      "classIds": [
+        "CE-16",
+        "CE-15"
+      ],
+      "title": "Quarto ocupado no período e recusado",
+      "input": "Quarto 101 ocupado de 10/03/2030 a 12/03/2030; nova reserva de 11/03/2030 a 13/03/2030 (a noite de 11/03 em comum)",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Já existe uma reserva do 101 de 10/03/2030 a 12/03/2030.",
+        "Ana tenta reservar o 101 de 11/03/2030 a 13/03/2030 (a noite de 11/03 está nas duas)."
+      ],
+      "expected": "Reserva recusada (quarto ocupado)",
+      "validity": "Inválido",
+      "technique": "AVL",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-013",
+      "requirementId": "REQ-02",
+      "classId": "CE-18",
+      "classIds": [
+        "CE-18"
+      ],
+      "title": "Entrada no passado e recusada",
+      "input": "Entrada ontem",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela tenta reservar com entrada ONTEM e saída amanhã."
+      ],
+      "expected": "Reserva recusada",
+      "validity": "Inválido",
+      "technique": "AVL",
+      "priority": "Média",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-014",
+      "requirementId": "REQ-02",
+      "classId": "CE-20",
+      "classIds": [
+        "CE-20"
+      ],
+      "title": "Data em formato errado e recusada",
+      "input": "Data de entrada \"2030-13-01\" (formato errado e mês 13)",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela envia a data de entrada '2030-13-01' (formato errado e mês 13); a saída e o resto estão corretos."
+      ],
+      "expected": "Reserva recusada",
+      "validity": "Inválido",
+      "technique": "CE",
+      "priority": "Alta",
+      "status": "Pronto"
+    },
+    {
+      "id": "CT-015",
+      "requirementId": "REQ-03",
+      "classId": "CE-22",
+      "classIds": [
+        "CE-22"
+      ],
+      "title": "Saída igual à entrada e recusada",
+      "input": "Saída no mesmo dia da entrada: 10/03/2030 a 10/03/2030 (0 noites)",
+      "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
+      "steps": [
+        "Ana está logada.",
+        "Ela tenta reservar com entrada e saída em 10/03/2030."
+      ],
+      "expected": "Reserva recusada",
+      "validity": "Inválido",
+      "technique": "AVL",
+      "priority": "Média",
+      "status": "Pronto"
+    }
+  ],
+  "executions": [],
+  "defects": [],
+  "metrics": [],
+  "syncHistory": [],
+  "mutationHistory": [],
+  "controlFlowGraphs": [],
+  "structuralCoverage": [],
+  "graphAnalysis": null
+}

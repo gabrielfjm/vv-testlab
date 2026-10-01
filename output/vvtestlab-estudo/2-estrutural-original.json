@@ -1,0 +1,734 @@
+{
+  "runId": "PYTEST-20261001-155445",
+  "finishedAt": "2026-10-01T15:54:45-03:00",
+  "exitCode": 1,
+  "duration": 3.0,
+  "mapped": [
+    {
+      "caseId": "CT-001",
+      "result": "Aprovado",
+      "tests": 2,
+      "duration": 0.093,
+      "actual": "pytest: 2 teste(s) automatizado(s); resultado Aprovado; tempo 0.093s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_001_reserva_simples_de_um_quarto_e_aceita",
+        "tests.test_02_estrutural::test_CT_001_ampliacao_formulario_aberto_antes_e_outro_quarto_ocupado"
+      ]
+    },
+    {
+      "caseId": "CT-002",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.032,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.032s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_002_reserva_de_dois_quartos_com_lotacao_maxima_e_aceita"
+      ]
+    },
+    {
+      "caseId": "CT-003",
+      "result": "Falhou",
+      "tests": 1,
+      "duration": 0.027,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Falhou; tempo 0.027s. Evidência: AssertionError: assert '/reserve' == '/rooms' - /rooms + /reserve",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_003_estadia_que_comeca_quando_outra_termina_e_aceita"
+      ]
+    },
+    {
+      "caseId": "CT-004",
+      "result": "Falhou",
+      "tests": 1,
+      "duration": 0.019,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Falhou; tempo 0.019s. Evidência: AssertionError: assert '/reserve' == '/rooms' - /rooms + /reserve",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_004_entrada_hoje_e_aceita"
+      ]
+    },
+    {
+      "caseId": "CT-005",
+      "result": "Falhou",
+      "tests": 2,
+      "duration": 0.035,
+      "actual": "pytest: 2 teste(s) automatizado(s); resultado Falhou; tempo 0.035s. Evidência: KeyError: 'user_available'",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_005_visitante_sem_login_nao_reserva",
+        "tests.test_02_estrutural::test_CT_005_ampliacao_usuario_que_saiu_nao_reserva"
+      ]
+    },
+    {
+      "caseId": "CT-006",
+      "result": "Falhou",
+      "tests": 1,
+      "duration": 0.021,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Falhou; tempo 0.021s. Evidência: ValueError: invalid literal for int() with base 10: 'abc'",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_006_quarto_escrito_em_texto_e_recusado"
+      ]
+    },
+    {
+      "caseId": "CT-007",
+      "result": "Falhou",
+      "tests": 1,
+      "duration": 0.033,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Falhou; tempo 0.033s. Evidência: AssertionError: assert '/rooms' == '/reserve' - /reserve + /rooms",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_007_quarto_que_nao_existe_e_recusado"
+      ]
+    },
+    {
+      "caseId": "CT-008",
+      "result": "Falhou",
+      "tests": 1,
+      "duration": 0.033,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Falhou; tempo 0.033s. Evidência: AssertionError: assert '/rooms' == '/reserve' - /reserve + /rooms",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_008_quarto_repetido_e_recusado"
+      ]
+    },
+    {
+      "caseId": "CT-009",
+      "result": "Falhou",
+      "tests": 1,
+      "duration": 0.025,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Falhou; tempo 0.025s. Evidência: AssertionError: assert '/rooms' == '/reserve' - /reserve + /rooms",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_009_reserva_sem_hospedes_e_recusada"
+      ]
+    },
+    {
+      "caseId": "CT-010",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.021,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.021s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_010_hospedes_acima_da_capacidade_sao_recusados"
+      ]
+    },
+    {
+      "caseId": "CT-011",
+      "result": "Falhou",
+      "tests": 1,
+      "duration": 0.018,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Falhou; tempo 0.018s. Evidência: TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_011_hospedes_escritos_por_extenso_sao_recusados"
+      ]
+    },
+    {
+      "caseId": "CT-012",
+      "result": "Falhou",
+      "tests": 2,
+      "duration": 0.068,
+      "actual": "pytest: 2 teste(s) automatizado(s); resultado Falhou; tempo 0.068s. Evidência: AssertionError: assert '/reserve' == '/rooms' - /rooms + /reserve",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_012_quarto_ocupado_no_periodo_e_recusado",
+        "tests.test_02_estrutural::test_CT_012_ampliacao_reserva_de_outro_quarto_nao_bloqueia"
+      ]
+    },
+    {
+      "caseId": "CT-013",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.02,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.020s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_013_entrada_no_passado_e_recusada"
+      ]
+    },
+    {
+      "caseId": "CT-014",
+      "result": "Falhou",
+      "tests": 1,
+      "duration": 0.015,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Falhou; tempo 0.015s. Evidência: TypeError: combine() argument 1 must be datetime.date, not None",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_014_data_em_formato_errado_e_recusada"
+      ]
+    },
+    {
+      "caseId": "CT-015",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.026,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.026s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_015_saida_igual_a_entrada_e_recusada"
+      ]
+    }
+  ],
+  "unmapped": [],
+  "coverage": {
+    "statementCoverage": 100.0,
+    "branchCoverage": 97.06,
+    "statements": 63,
+    "coveredLines": 63,
+    "branches": 34,
+    "coveredBranches": 33,
+    "scope": [
+      "cal_cost",
+      "reserve"
+    ]
+  },
+  "caseCoverage": [
+    {
+      "caseId": "CT-001",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          205,
+          206,
+          207,
+          208,
+          213,
+          214,
+          215,
+          216,
+          217,
+          221,
+          222,
+          223,
+          224,
+          225,
+          228,
+          229,
+          230,
+          231,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240,
+          241,
+          247,
+          248,
+          249,
+          250,
+          251,
+          252,
+          253,
+          254,
+          255,
+          256,
+          257,
+          258,
+          259,
+          260
+        ]
+      },
+      "lineCount": 56
+    },
+    {
+      "caseId": "CT-002",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          213,
+          214,
+          215,
+          216,
+          217,
+          221,
+          222,
+          223,
+          224,
+          225,
+          228,
+          229,
+          230,
+          231,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240,
+          247,
+          248,
+          249,
+          250,
+          251,
+          252,
+          253,
+          254,
+          255,
+          256,
+          257,
+          258,
+          259,
+          260
+        ]
+      },
+      "lineCount": 51
+    },
+    {
+      "caseId": "CT-003",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          205,
+          206,
+          207,
+          208,
+          209,
+          211,
+          212
+        ]
+      },
+      "lineCount": 22
+    },
+    {
+      "caseId": "CT-004",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          200,
+          201
+        ]
+      },
+      "lineCount": 14
+    },
+    {
+      "caseId": "CT-005",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          242,
+          243
+        ]
+      },
+      "lineCount": 3
+    },
+    {
+      "caseId": "CT-006",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          213,
+          214,
+          215
+        ]
+      },
+      "lineCount": 18
+    },
+    {
+      "caseId": "CT-007",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          213,
+          214,
+          215,
+          216,
+          217,
+          221,
+          222,
+          223,
+          224,
+          225,
+          228,
+          229,
+          230,
+          231,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240,
+          247,
+          248,
+          249,
+          250,
+          251,
+          252,
+          253,
+          254,
+          255,
+          256,
+          257,
+          258,
+          259,
+          260
+        ]
+      },
+      "lineCount": 51
+    },
+    {
+      "caseId": "CT-008",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          213,
+          214,
+          215,
+          216,
+          217,
+          221,
+          222,
+          223,
+          224,
+          225,
+          228,
+          229,
+          230,
+          231,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240,
+          247,
+          248,
+          249,
+          250,
+          251,
+          252,
+          253,
+          254,
+          255,
+          256,
+          257,
+          258,
+          259,
+          260
+        ]
+      },
+      "lineCount": 51
+    },
+    {
+      "caseId": "CT-009",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          213,
+          214,
+          215,
+          216,
+          217,
+          221,
+          222,
+          223,
+          224,
+          225,
+          228,
+          229,
+          230,
+          231,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240,
+          247,
+          248,
+          249,
+          250,
+          251,
+          252,
+          253,
+          254,
+          255,
+          256,
+          257,
+          258,
+          259,
+          260
+        ]
+      },
+      "lineCount": 51
+    },
+    {
+      "caseId": "CT-010",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          213,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220
+        ]
+      },
+      "lineCount": 23
+    },
+    {
+      "caseId": "CT-011",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          213,
+          214,
+          215,
+          216,
+          217
+        ]
+      },
+      "lineCount": 20
+    },
+    {
+      "caseId": "CT-012",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          202,
+          203,
+          204,
+          205,
+          206,
+          207,
+          208,
+          209,
+          211,
+          212
+        ]
+      },
+      "lineCount": 22
+    },
+    {
+      "caseId": "CT-013",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          200,
+          201
+        ]
+      },
+      "lineCount": 14
+    },
+    {
+      "caseId": "CT-014",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191
+        ]
+      },
+      "lineCount": 6
+    },
+    {
+      "caseId": "CT-015",
+      "files": {
+        ".sut-original/hotel/views.py": [
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          195,
+          196,
+          197,
+          199,
+          200,
+          201
+        ]
+      },
+      "lineCount": 14
+    }
+  ],
+  "coverageEnabled": true,
+  "coverageContextError": "",
+  "environment": "Python 3.9.25 / Windows 10",
+  "command": [
+    "C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-p",
+    "vvtestlab_pytest_plugin",
+    "--junitxml=C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.vvtestlab\\junit.xml",
+    "-q",
+    "tests",
+    "-m",
+    "funcional or estrutural",
+    "--runxfail",
+    "--cov=hotel.views",
+    "--cov-branch",
+    "--cov-context=test",
+    "--cov-report="
+  ],
+  "stdout": "oms:\n>                       if int(each) == each_room.room_number:\nE                       ValueError: invalid literal for int() with base 10: 'abc'\n\n.sut-original\\hotel\\views.py:215: ValueError\n________________ test_CT_007_quarto_que_nao_existe_e_recusado _________________\n\nclient = <FlaskClient <Flask 'hotel'>>\n\n    @funcional\n    @pytest.mark.ce(\"CE-06\")\n    @pytest.mark.defeito(\"DEF-05\", \"quarto inexistente é aceito junto com um quarto válido\")\n    def test_CT_007_quarto_que_nao_existe_e_recusado(client):\n        login(client)\n>       assert path(reservar(client, quartos=\"101,999\", hospedes=2)) == \"/reserve\"\nE       AssertionError: assert '/rooms' == '/reserve'\nE         \nE         - /reserve\nE         + /rooms\n\ntests\\test_01_funcional.py:102: AssertionError\n___________________ test_CT_008_quarto_repetido_e_recusado ____________________\n\nclient = <FlaskClient <Flask 'hotel'>>\n\n    @funcional\n    @pytest.mark.ce(\"CE-08\")\n    @pytest.mark.defeito(\"DEF-06\", \"quarto repetido gera dois vínculos e custo em dobro\")\n    def test_CT_008_quarto_repetido_e_recusado(client):\n        login(client)\n>       assert path(reservar(client, quartos=\"101,101\", hospedes=2)) == \"/reserve\"\nE       AssertionError: assert '/rooms' == '/reserve'\nE         \nE         - /reserve\nE         + /rooms\n\ntests\\test_01_funcional.py:112: AssertionError\n_________________ test_CT_009_reserva_sem_hospedes_e_recusada _________________\n\nclient = <FlaskClient <Flask 'hotel'>>\n\n    @funcional\n    @pytest.mark.ce(\"CE-12\")\n    @pytest.mark.defeito(\"DEF-03\", \"reserva com zero hóspedes é gravada\")\n    def test_CT_009_reserva_sem_hospedes_e_recusada(client):\n        login(client)\n>       assert path(reservar(client, hospedes=0)) == \"/reserve\"\nE       AssertionError: assert '/rooms' == '/reserve'\nE         \nE         - /reserve\nE         + /rooms\n\ntests\\test_01_funcional.py:121: AssertionError\n___________ test_CT_011_hospedes_escritos_por_extenso_sao_recusados ___________\n\nclient = <FlaskClient <Flask 'hotel'>>\n\n    @funcional\n    @pytest.mark.ce(\"CE-14\")\n    @pytest.mark.defeito(\"DEF-19\", \"número de hóspedes não inteiro gera erro interno\")\n    def test_CT_011_hospedes_escritos_por_extenso_sao_recusados(client):\n        login(client)\n>       assert path(reservar(client, hospedes=\"dois\")) == \"/reserve\"\n\ntests\\test_01_funcional.py:138: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\ntests\\conftest.py:173: in reservar\n    return client.post(\"/reserve\", data={\n.venv\\lib\\site-packages\\werkzeug\\test.py:1039: in post\n    return self.open(*args, **kw)\n.venv\\lib\\site-packages\\flask\\testing.py:124: in open\n    return Client.open(self, builder,\n.venv\\lib\\site-packages\\werkzeug\\test.py:993: in open\n    response = self.run_wsgi_app(environ.copy(), buffered=buffered)\n.venv\\lib\\site-packages\\werkzeug\\test.py:884: in run_wsgi_app\n    rv = run_wsgi_app(self.application, environ, buffered=buffered)\n.venv\\lib\\site-packages\\werkzeug\\test.py:1119: in run_wsgi_app\n    app_rv = app(environ, start_response)\n.venv\\lib\\site-packages\\flask\\app.py:1994: in __call__\n    return self.wsgi_app(environ, start_response)\n.venv\\lib\\site-packages\\flask\\app.py:1985: in wsgi_app\n    response = self.handle_exception(e)\n.venv\\lib\\site-packages\\flask\\app.py:1540: in handle_exception\n    reraise(exc_type, exc_value, tb)\n.venv\\lib\\site-packages\\flask\\_compat.py:33: in reraise\n    raise value\n.venv\\lib\\site-packages\\flask\\app.py:1982: in wsgi_app\n    response = self.full_dispatch_request()\n.venv\\lib\\site-packages\\flask\\app.py:1614: in full_dispatch_request\n    rv = self.handle_user_exception(e)\n.venv\\lib\\site-packages\\flask\\app.py:1517: in handle_user_exception\n    reraise(exc_type, exc_value, tb)\n.venv\\lib\\site-packages\\flask\\_compat.py:33: in reraise\n    raise value\n.venv\\lib\\site-packages\\flask\\app.py:1612: in full_dispatch_request\n    rv = self.dispatch_request()\n.venv\\lib\\site-packages\\flask\\app.py:1598: in dispatch_request\n    return self.view_functions[rule.endpoint](**req.view_args)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\n    @app.route('/reserve', methods=['GET', 'POST'])\n    def reserve():\n        if session['user_available']:\n            reservation = ReserveForm(request.form)\n            us = User.query.filter_by(username=session['current_user']).first()\n            if request.method == 'POST':\n                room_list = reservation.room_numbers.data.split(\",\")\n                d1 = datetime.datetime.combine(reservation.checkin_date.data, datetime.time(0, 0))\n                d2 = datetime.datetime.combine(reservation.checkout_date.data, datetime.time(0, 0))\n                num = reservation.num_guests.data\n    \n                all_reserves = Reservations.query.all()\n                all_bookings = Booked.query.all()\n                all_rooms = Rooms.query.all()\n    \n                if d2 <= d1 or d1 < datetime.datetime.now() or d2 < datetime.datetime.now():\n                    flash(\"Please recheck your date! It has to be at least today! \")\n                    return redirect(url_for('reserve'))\n                total_num = 0\n                for each in room_list:\n                    for each_reserves in all_reserves:\n                        for each_booking in all_bookings:\n                            c1 = each_reserves.checkin_date\n                            c2 = each_reserves.checkout_date\n                            if each_booking.room_id == int(each) and (\n                                    (c1 <= d1 and d2 <= c2) or (d1 <= c1 and d2 <= c2) or (c1 <= d1 and c2 <= d2) or (\n                                    d1 <= c1 and c2 <= d2)):\n                                flash(\"The room you are reserving is not available at the time you selected!\")\n                                return redirect(url_for('reserve'))\n                for each in room_list:\n                    for each_room in all_rooms:\n                        if int(each) == each_room.room_number:\n                            total_num += each_room.capacity\n>               if num > total_num:\nE               TypeError: '>' not supported between instances of 'NoneType' and 'int'\n\n.sut-original\\hotel\\views.py:217: TypeError\n________________ test_CT_014_data_em_formato_errado_e_recusada ________________\n\nclient = <FlaskClient <Flask 'hotel'>>\n\n    @funcional\n    @pytest.mark.ce(\"CE-20\")\n    @pytest.mark.defeito(\"DEF-18\", \"data fora do formato MM/DD/AAAA gera erro interno\")\n    def test_CT_014_data_em_formato_errado_e_recusada(client):\n        login(client)\n>       resposta = client.post(\"/reserve\", data={\"checkin_date\": \"2030-13-01\", \"checkout_date\": \"03/12/2030\",\n                                                  \"num_guests\": \"2\", \"room_numbers\": \"101\"})\n\ntests\\test_01_funcional.py:164: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n.venv\\lib\\site-packages\\werkzeug\\test.py:1039: in post\n    return self.open(*args, **kw)\n.venv\\lib\\site-packages\\flask\\testing.py:124: in open\n    return Client.open(self, builder,\n.venv\\lib\\site-packages\\werkzeug\\test.py:993: in open\n    response = self.run_wsgi_app(environ.copy(), buffered=buffered)\n.venv\\lib\\site-packages\\werkzeug\\test.py:884: in run_wsgi_app\n    rv = run_wsgi_app(self.application, environ, buffered=buffered)\n.venv\\lib\\site-packages\\werkzeug\\test.py:1119: in run_wsgi_app\n    app_rv = app(environ, start_response)\n.venv\\lib\\site-packages\\flask\\app.py:1994: in __call__\n    return self.wsgi_app(environ, start_response)\n.venv\\lib\\site-packages\\flask\\app.py:1985: in wsgi_app\n    response = self.handle_exception(e)\n.venv\\lib\\site-packages\\flask\\app.py:1540: in handle_exception\n    reraise(exc_type, exc_value, tb)\n.venv\\lib\\site-packages\\flask\\_compat.py:33: in reraise\n    raise value\n.venv\\lib\\site-packages\\flask\\app.py:1982: in wsgi_app\n    response = self.full_dispatch_request()\n.venv\\lib\\site-packages\\flask\\app.py:1614: in full_dispatch_request\n    rv = self.handle_user_exception(e)\n.venv\\lib\\site-packages\\flask\\app.py:1517: in handle_user_exception\n    reraise(exc_type, exc_value, tb)\n.venv\\lib\\site-packages\\flask\\_compat.py:33: in reraise\n    raise value\n.venv\\lib\\site-packages\\flask\\app.py:1612: in full_dispatch_request\n    rv = self.dispatch_request()\n.venv\\lib\\site-packages\\flask\\app.py:1598: in dispatch_request\n    return self.view_functions[rule.endpoint](**req.view_args)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\n    @app.route('/reserve', methods=['GET', 'POST'])\n    def reserve():\n        if session['user_available']:\n            reservation = ReserveForm(request.form)\n            us = User.query.filter_by(username=session['current_user']).first()\n            if request.method == 'POST':\n                room_list = reservation.room_numbers.data.split(\",\")\n>               d1 = datetime.datetime.combine(reservation.checkin_date.data, datetime.time(0, 0))\nE               TypeError: combine() argument 1 must be datetime.date, not None\n\n.sut-original\\hotel\\views.py:191: TypeError\n_________ test_CT_012_ampliacao_reserva_de_outro_quarto_nao_bloqueia __________\n\nclient = <FlaskClient <Flask 'hotel'>>, baseline = {'ana': 1, 'bruno': 2}\n\n    @estrutural\n    @pytest.mark.ce(\"CE-15\")\n    @pytest.mark.defeito(\"DEF-15\", \"vínculo de quarto é comparado com reservas de outros quartos\")\n    def test_CT_012_ampliacao_reserva_de_outro_quarto_nao_bloqueia(client, baseline):\n        # Lendo o laço triplo das linhas 203-212 para cobrir o desvio 208->205: ele combina cada\n        # quarto reservado com as datas de TODAS as reservas (falta brid == rid). Aqui o 101 está\n        # livre em 20/03, mas o original o recusa por causa da reserva do Bruno (quarto 102).\n        reserva_existente(baseline[\"ana\"], quartos=(101,), entrada=\"10/03/2030\", saida=\"12/03/2030\")\n        reserva_existente(baseline[\"bruno\"], quartos=(102,), entrada=\"20/03/2030\", saida=\"22/03/2030\")\n        login(client)\n>       assert path(reservar(client, quartos=\"101\", entrada=\"20/03/2030\", saida=\"22/03/2030\")) == \"/rooms\"\nE       AssertionError: assert '/reserve' == '/rooms'\nE         \nE         - /rooms\nE         + /reserve\n\ntests\\test_02_estrutural.py:59: AssertionError\n============================== warnings summary ===============================\n.venv\\lib\\site-packages\\flask_sqlalchemy\\__init__.py:800\n  C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.venv\\lib\\site-packages\\flask_sqlalchemy\\__init__.py:800: UserWarning: SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True to suppress this warning.\n    warnings.warn('SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True to suppress this warning.')\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n- generated xml file: C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.vvtestlab\\junit.xml -\n=========================== short test summary info ===========================\nFAILED tests/test_01_funcional.py::test_CT_003_estadia_que_comeca_quando_outra_termina_e_aceita\nFAILED tests/test_01_funcional.py::test_CT_004_entrada_hoje_e_aceita - Assert...\nFAILED tests/test_01_funcional.py::test_CT_005_visitante_sem_login_nao_reserva\nFAILED tests/test_01_funcional.py::test_CT_006_quarto_escrito_em_texto_e_recusado\nFAILED tests/test_01_funcional.py::test_CT_007_quarto_que_nao_existe_e_recusado\nFAILED tests/test_01_funcional.py::test_CT_008_quarto_repetido_e_recusado - A...\nFAILED tests/test_01_funcional.py::test_CT_009_reserva_sem_hospedes_e_recusada\nFAILED tests/test_01_funcional.py::test_CT_011_hospedes_escritos_por_extenso_sao_recusados\nFAILED tests/test_01_funcional.py::test_CT_014_data_em_formato_errado_e_recusada\nFAILED tests/test_02_estrutural.py::test_CT_012_ampliacao_reserva_de_outro_quarto_nao_bloqueia\n10 failed, 8 passed, 18 deselected, 1 warning in 1.49s\n",
+  "stderr": ""
+}

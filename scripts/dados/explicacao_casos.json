@@ -1,0 +1,410 @@
+{
+  "base": {
+    "titulo": "Base comum de todos os testes",
+    "itens": [
+      "Cada teste começa com um banco SQLite vazio, criado na memória pela fixture baseline: quartos 101 (R$ 100 por noite, cabem 2 pessoas), 102 (R$ 150, 3 pessoas) e 301 (R$ 200, 4 pessoas), e dois usuários, Ana e Bruno.",
+      "As datas são reais (março de 2030), escritas como no Brasil (DD/MM/AAAA). A exceção são os casos de 'hoje' e 'ontem', que usam hoje() e mudam conforme o dia em que o teste roda.",
+      "login(client) coloca na sessão que a Ana está logada, como se ela tivesse feito login.",
+      "reservar(client, quartos, hospedes, entrada, saida) preenche e envia o formulário de reserva (POST /reserve). O que não for informado usa o padrão: quarto 101, 2 hóspedes, de 10/03/2030 a 12/03/2030.",
+      "reserva_existente(...) grava direto no banco uma reserva que já existia antes do teste (por padrão, quarto 101 de 10/03/2030 a 12/03/2030).",
+      "path(resposta) diz para onde o sistema mandou o usuário: /rooms significa que a reserva foi ACEITA; /reserve significa que foi RECUSADA (volta ao formulário com mensagem); / é a página inicial (usuário sem login).",
+      "Uma estadia é o intervalo [entrada, saída): a noite da saída não conta. Por isso uma pessoa pode entrar no mesmo dia em que outra sai.",
+      "Os mesmos 15 casos são usados nas três etapas. Quando uma etapa precisou de um cenário a mais, o caso foi AMPLIADO: a ampliação é outra função pytest com o mesmo número de caso (por exemplo, test_CT_001_ampliacao_...)."
+    ],
+    "preparacao": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno."
+  },
+  "etapas": {
+    "funcional": {
+      "titulo": "Como a etapa funcional foi feita",
+      "passos": [
+        "Li só o README e o formulário de reserva, sem olhar o código (caixa-preta), e listei as condições de entrada: sessão, número dos quartos (formato, existência, repetição, quantidade), número de hóspedes, ocupação do quarto no período, data de entrada (em relação a hoje e formato) e duração da estadia.",
+        "Dividi cada condição em classes de equivalência válidas e inválidas: 22 classes no total, 11 válidas e 11 inválidas (tabela em Requisitos e no relatório, seção 4.1).",
+        "Um único caso válido (CT-001) cobre todas as classes válidas de uma vez. Cada classe inválida ganhou um caso próprio, em que todo o resto é válido, para que a recusa só possa ter uma causa. Resultado: 15 casos.",
+        "Análise do valor limite: cada caso usa o valor exatamente na fronteira ou logo fora dela: 0 e 1 hóspede, 5 e 6 hóspedes (capacidade somada do 101 e 102), ontem e hoje, 0 e 1 noite, uma noite de sobreposição (11/03) e estadias encostadas (entrar em 12/03, dia em que a outra sai).",
+        "Rodei os 15 casos no código ORIGINAL. Cada caso que espera revelar um defeito é marcado como xfail estrito: ele PRECISA falhar no original. Resultado: 6 passaram e 9 falharam, revelando 9 defeitos.",
+        "Medi a cobertura com coverage.py: 95,2% dos comandos e 85,3% dos desvios das funções reserve e cal_cost. Esse é o ponto de partida da etapa estrutural."
+      ]
+    },
+    "estrutural": {
+      "titulo": "Como a etapa estrutural foi feita",
+      "passos": [
+        "Não criei casos novos: reaproveitei 5 dos 15 casos funcionais, um para cada caminho principal da função reserve. CT-001 (reserva aceita), CT-005 (sem login), CT-009 (dado inválido), CT-012 (quarto ocupado) e CT-013 (data no passado). O grafo de cada função mostra em verde o caminho que cada um percorre.",
+        "Rodei os 15 casos com coverage.py --branch e li o relatório term-missing, que lista as linhas e os desvios que nenhum teste executou: linha 241 (abrir o formulário com GET), linhas 242-243 (usuário que saiu do sistema), desvios 208→205 e 205→204 (reserva já existente de OUTRO quarto) e 230→229.",
+        "Para cada lacuna, AMPLIEI um dos casos reaproveitados com o cenário que faltava: o CT-001 passou a abrir o formulário antes de reservar, com outro quarto já ocupado nas mesmas datas; o CT-005 passou a testar também o usuário que fez logout.",
+        "Ao ler o laço triplo para entender o desvio 208→205, percebi que ele compara cada quarto reservado com as datas de TODAS as reservas. Ampliei o CT-012 com o cenário que prova isso, e ele revelou o DEF-15.",
+        "O desvio 230→229 é inviável: os números das reservas vêm em ordem crescente, então a condição nunca é falsa.",
+        "Resultado no original: os mesmos 15 casos (18 funções pytest), 100% dos comandos e 33 de 34 desvios (o que falta é o inviável). Meta atingida."
+      ]
+    },
+    "mutacao": {
+      "titulo": "Como a etapa de mutação foi feita",
+      "passos": [
+        "Antes de mutar, corrigi os defeitos no fork (6 commits) e confirmei que os 15 casos passavam no código corrigido. A mutação precisa de uma suíte toda verde.",
+        "O Cosmic Ray gerou 141 mutantes das funções do recorte. Cada mutante é uma cópia do código com UMA alteração pequena, como trocar < por <=, == por is ou 0 por 1. Para cada mutante, os 15 casos rodam inteiros.",
+        "Se algum teste falha, o mutante MORREU: os testes perceberam que o código mudou. Se todos passam, o mutante SOBREVIVEU: existe um erro que os testes não detectariam.",
+        "Rodada inicial (15 casos, 18 funções): 127 mortos e 14 sobreviventes. Escore = 127 ÷ 141 = 90,1%.",
+        "Analisei os 14 sobreviventes um a um. 7 são EQUIVALENTES: a alteração não muda o comportamento, então nenhum teste consegue matá-los. Os outros 7 mostraram fraquezas dos casos, e em vez de criar casos novos AMPLIEI os casos que deveriam tê-los detectado: CT-002, CT-003, CT-012 e CT-015.",
+        "Rodada final (os mesmos 15 casos, 22 funções): 134 mortos e 7 sobreviventes, todos equivalentes. Escore = 134 ÷ 141 = 95,0%. Sem os equivalentes, 134 ÷ (141 − 7) = 100%."
+      ]
+    }
+  },
+  "casos": {
+    "CT-001": {
+      "entrada": "Quarto 101 para 1 hóspede, de 10/03/2030 a 12/03/2030 (2 noites)",
+      "esperado": "Reserva aceita, com custo de R$ 200",
+      "porque": "É o caso válido de base. Uma única reserva correta cobre de uma vez as 10 classes válidas: usuário logado, quarto em formato numérico, quarto existente, sem repetição, um quarto, hóspedes dentro da capacidade, quarto livre, entrada no futuro, datas no formato certo e pelo menos 1 noite. Também é o ponto de valor limite '1 hóspede' (o mínimo permitido).",
+      "passos": [
+        "Ana está logada.",
+        "Ela reserva o quarto 101 para 1 hóspede, de 10/03/2030 a 12/03/2030 (2 noites)."
+      ],
+      "verifica": "O sistema aceita (vai para /rooms), grava uma reserva com 1 hóspede e custo R$ 200 (2 noites × R$ 100) e cria um único vínculo entre a reserva e o quarto 101.",
+      "original": "Passou: o sistema original já fazia a reserva simples corretamente.",
+      "corrigido": "Passou.",
+      "resumo": "Mostra que o caminho feliz funciona e calcula o custo certo; serve de referência para todos os casos inválidos.",
+      "ampliacoes": [
+        {
+          "etapa": "estrutural",
+          "titulo": "Abre o formulário antes e há outro quarto ocupado nas mesmas datas",
+          "porque": "A cobertura mostrou dois trechos que nenhum caso executava: a linha 241 (mostrar o formulário quando a pessoa só abre a página) e os desvios 208→205 e 205→204 (quando já existe reserva, mas de OUTRO quarto).",
+          "passos": [
+            "Bruno já tem o quarto 102 reservado de 10/03/2030 a 12/03/2030.",
+            "Ana abre a página de reserva (só abre, sem enviar).",
+            "Ana reserva o quarto 101 nas mesmas datas, 10/03/2030 a 12/03/2030."
+          ],
+          "verifica": "O formulário aparece normalmente e a reserva é aceita (quartos diferentes não conflitam); passam a existir 2 reservas.",
+          "original": "Passou no original: aqui não há defeito, a ampliação existe para executar os trechos que faltavam."
+        }
+      ]
+    },
+    "CT-002": {
+      "entrada": "Quartos 101 e 102 juntos para 5 hóspedes (a capacidade somada), de 10/03/2030 a 13/03/2030",
+      "esperado": "Reserva aceita, com custo de R$ 750",
+      "porque": "Classe 'vários quartos' (CE-10) e valor limite superior de hóspedes: 101 + 102 comportam 2 + 3 = 5 pessoas, e o caso usa exatamente 5.",
+      "passos": [
+        "Ana está logada.",
+        "Ela reserva os quartos 101 e 102 juntos, para 5 hóspedes, de 10/03/2030 a 13/03/2030 (3 noites)."
+      ],
+      "verifica": "O sistema aceita, grava o custo (R$ 100 + R$ 150) × 3 = R$ 750 e cria vínculos com os dois quartos.",
+      "original": "Passou: o original soma a capacidade e o custo dos quartos corretamente.",
+      "corrigido": "Passou.",
+      "resumo": "Testa o limite máximo de hóspedes quando a capacidade é a soma de vários quartos.",
+      "ampliacoes": [
+        {
+          "etapa": "mutacao",
+          "titulo": "Reserva de todos os quartos do hotel, incluindo o 301",
+          "porque": "Dois mutantes sobreviveram porque nenhum caso reservava o hotel inteiro nem o quarto 301: S5 (em _ler_quartos, 'todos os quartos existem' virou 'subconjunto próprio') e S7 (em cal_cost, '==' virou 'is', que só funciona com números até 256).",
+          "passos": [
+            "Ana está logada.",
+            "Ela reserva os três quartos (101, 102 e 301) para 9 hóspedes (2 + 3 + 4), de 10/03/2030 a 12/03/2030."
+          ],
+          "verifica": "O sistema aceita, grava o custo (100 + 150 + 200) × 2 = R$ 900 e cria os 3 vínculos.",
+          "mutante": "S5: pedir todos os quartos não é subconjunto próprio, então o mutante recusa a reserva. S7: com 'is', o 301 lido do vínculo e o 301 do quarto são objetos diferentes, a diária dele não é somada e o custo fica errado. Nos dois casos o teste falha: mutantes mortos."
+        }
+      ]
+    },
+    "CT-003": {
+      "entrada": "Quarto 101 ocupado de 10/03/2030 a 12/03/2030; nova reserva de 12/03/2030 a 14/03/2030 (entra no dia em que a outra sai)",
+      "esperado": "Reserva aceita",
+      "obtido": "Reserva recusada com a mensagem \"quarto indisponível\"",
+      "porque": "Valor limite da ocupação: a nova estadia começa exatamente no dia em que a outra termina. Como a noite da saída não conta, as duas não se sobrepõem e a reserva deve ser aceita.",
+      "passos": [
+        "Já existe uma reserva do quarto 101 de 10/03/2030 a 12/03/2030.",
+        "Ana tenta reservar o mesmo quarto 101 de 12/03/2030 a 14/03/2030 (entra no dia em que a outra pessoa sai)."
+      ],
+      "verifica": "O sistema aceita e passam a existir 2 reservas.",
+      "original": "FALHOU: o original recusou com 'The room you are reserving is not available'. Causa (DEF-01): a condição de conflito de datas é uma tautologia, com 4 alternativas ligadas por 'or' que cobrem todas as combinações possíveis de datas; ela é SEMPRE verdadeira. Depois da primeira reserva, o quarto fica bloqueado para sempre.",
+      "corrigido": "Passou depois do commit 2d1b2cd, que trocou a condição por _periodos_conflitam(a1, a2, b1, b2) = a1 < b2 and b1 < a2 (há conflito só se os períodos se cruzam).",
+      "resumo": "O limite 'entrar no dia da saída' revelou o defeito mais grave do sistema: um quarto reservado uma vez nunca mais podia ser reservado.",
+      "ampliacoes": [
+        {
+          "etapa": "mutacao",
+          "titulo": "Estadias antes da reserva existente (o outro lado do limite)",
+          "porque": "Três mutantes da regra de conflito sobreviveram (S1, S2 e S3) porque o caso só testava um lado do limite: entrar no dia em que a outra sai. Faltava sair no dia em que a outra entra e uma estadia inteira antes da outra.",
+          "passos": [
+            "Já existe uma reserva do quarto 101 de 10/03/2030 a 12/03/2030.",
+            "Ana reserva o 101 de 08/03/2030 a 10/03/2030 (sai no dia em que a outra entra).",
+            "Ana reserva o 101 de 05/03/2030 a 07/03/2030 (antes de tudo)."
+          ],
+          "verifica": "As duas reservas são aceitas e passam a existir 3 reservas.",
+          "mutante": "S1 ('<' virou '<=') e S2 ('<' virou 'is not') acusam conflito na estadia encostada de 08 a 10/03; S3 ('<' virou '!=') acusa conflito na estadia de 05 a 07/03, que nem encosta. Os mutantes recusam reservas válidas e o teste falha: mortos."
+        }
+      ]
+    },
+    "CT-004": {
+      "entrada": "Entrada hoje e saída amanhã (1 noite)",
+      "esperado": "Reserva aceita, com custo de uma diária (R$ 100)",
+      "obtido": "Reserva recusada com a mensagem \"a data precisa ser pelo menos hoje\"",
+      "porque": "Valor limite da data de entrada (o mínimo permitido é hoje) e da duração (o mínimo é 1 noite). Por depender do dia, este caso usa a data de hoje, e não uma data fixa.",
+      "passos": [
+        "Ana está logada.",
+        "Ela reserva o quarto 101 entrando HOJE e saindo amanhã (1 noite)."
+      ],
+      "verifica": "O sistema aceita e grava o custo de exatamente uma diária: R$ 100.",
+      "original": "FALHOU: o original recusou com 'Please recheck your date! It has to be at least today!'. Causa (DEF-02): a data de entrada vira 'hoje à meia-noite' e é comparada com 'hoje agora'. Meia-noite é sempre antes de agora, então o dia de hoje é tratado como passado.",
+      "corrigido": "Passou depois do commit 704bc86, que compara só as datas, sem as horas.",
+      "resumo": "O limite 'hoje' mostrou um erro clássico de comparar data com data e hora.",
+      "ampliacoes": []
+    },
+    "CT-005": {
+      "entrada": "Visitante sem login abre e envia o formulário de reserva",
+      "esperado": "Volta para a página inicial e nada é gravado",
+      "obtido": "Erro interno (500): o sistema quebrou porque a sessão não tinha a informação de login",
+      "porque": "Classe inválida CE-02: visitante sem login.",
+      "passos": [
+        "Ninguém está logado (a sessão nem tem a informação de login).",
+        "O visitante abre o formulário de reserva e depois tenta enviar uma reserva."
+      ],
+      "verifica": "Nas duas tentativas o sistema manda para a página inicial (/) e nenhuma reserva é gravada.",
+      "original": "FALHOU com erro interno 500: KeyError: 'user_available'. Causa (DEF-07): o código lê session['user_available'], mas essa informação só existe depois que alguém faz login ou logout. Para um visitante novo, o sistema quebra em vez de redirecionar.",
+      "corrigido": "Passou depois do commit 8a6c4bd, que passou a ler a sessão com segurança (session.get).",
+      "resumo": "Um visitante sem login derrubava a página com erro 500.",
+      "ampliacoes": [
+        {
+          "etapa": "estrutural",
+          "titulo": "Usuário que saiu do sistema (logout) também não reserva",
+          "porque": "A cobertura mostrou que o ramo 'usuário não autenticado' (linhas 242-243) nunca rodava: sem a informação de login o original quebra antes de chegar nele. Esse ramo só roda quando a informação existe e vale 'falso', que é o estado depois do logout. É o segundo representante da mesma classe CE-02.",
+          "passos": [
+            "A sessão fica como depois de um logout (user_available = falso).",
+            "O usuário abre e tenta enviar o formulário de reserva."
+          ],
+          "verifica": "As duas tentativas voltam para a página inicial e nada é gravado.",
+          "original": "Passou no original: a ampliação existe para executar o ramo que faltava."
+        }
+      ]
+    },
+    "CT-006": {
+      "entrada": "Campo de quartos preenchido com \"abc\"",
+      "esperado": "Reserva recusada e nada gravado",
+      "obtido": "Erro interno (500): o sistema tentou transformar \"abc\" em número e quebrou",
+      "porque": "Classe inválida CE-04: número de quarto que não é número.",
+      "passos": [
+        "Ana está logada.",
+        "No campo de quartos ela digita 'abc' (o resto do formulário está correto: 2 hóspedes, de 10/03/2030 a 12/03/2030)."
+      ],
+      "verifica": "O sistema recusa (volta para /reserve) e não grava nada.",
+      "original": "FALHOU com erro interno 500: ValueError: invalid literal for int() with base 10: 'abc' (linha 215). Causa (DEF-04): o código transforma o texto em número sem tratar o erro.",
+      "corrigido": "Passou depois do commit 644fd0d: a função _ler_quartos trata o erro e a reserva é recusada com mensagem.",
+      "resumo": "Digitar texto no campo de quartos derrubava o sistema.",
+      "ampliacoes": []
+    },
+    "CT-007": {
+      "entrada": "Quartos 101 e 999 (o 999 não existe) para 2 hóspedes",
+      "esperado": "Reserva recusada e nada gravado",
+      "obtido": "Reserva aceita, incluindo o quarto 999, que não existe",
+      "porque": "Classe inválida CE-06: quarto que não existe. O caso mistura um quarto válido (101) com um inexistente (999), mantendo 2 hóspedes, para que a ÚNICA coisa errada seja o quarto 999.",
+      "passos": [
+        "Ana está logada.",
+        "Ela pede os quartos '101,999' para 2 hóspedes, de 10/03/2030 a 12/03/2030."
+      ],
+      "verifica": "O sistema recusa, não grava a reserva e não cria nenhum vínculo de quarto.",
+      "original": "FALHOU: o original ACEITOU a reserva e criou um vínculo com o quarto 999, que não existe. Causa (DEF-05): o código nunca verifica se o quarto existe.",
+      "corrigido": "Passou depois do commit 644fd0d: só são aceitos quartos que existem no hotel.",
+      "resumo": "Era possível reservar um quarto que não existe.",
+      "ampliacoes": []
+    },
+    "CT-008": {
+      "entrada": "Quarto 101 repetido (\"101,101\") para 2 hóspedes",
+      "esperado": "Reserva recusada",
+      "obtido": "Reserva aceita com o quarto duas vezes e preço em dobro (R$ 400)",
+      "porque": "Classe inválida CE-08: quarto repetido na lista.",
+      "passos": [
+        "Ana está logada.",
+        "Ela pede os quartos '101,101' para 2 hóspedes, de 10/03/2030 a 12/03/2030."
+      ],
+      "verifica": "O sistema recusa e não grava nada.",
+      "original": "FALHOU: o original aceitou, criou 2 vínculos com o mesmo quarto, contou capacidade 4 (2 + 2) e cobrou R$ 400 em vez de R$ 200. Causa (DEF-06): a lista de quartos não é validada.",
+      "corrigido": "Passou depois do commit 644fd0d: listas com quartos repetidos são recusadas.",
+      "resumo": "Repetir o quarto dobrava a capacidade e o preço.",
+      "ampliacoes": []
+    },
+    "CT-009": {
+      "entrada": "Reserva para 0 hóspedes",
+      "esperado": "Reserva recusada e nada gravado",
+      "obtido": "Reserva aceita com 0 hóspedes e custo de R$ 200",
+      "porque": "Classe inválida CE-12 (menos de 1 hóspede) e valor limite logo abaixo do mínimo: 0 hóspedes.",
+      "passos": [
+        "Ana está logada.",
+        "Ela reserva o 101 para 0 hóspedes, de 10/03/2030 a 12/03/2030."
+      ],
+      "verifica": "O sistema recusa e não grava nenhuma reserva.",
+      "original": "FALHOU: o original aceitou e gravou uma reserva com 0 hóspedes e custo R$ 200. Causa (DEF-03): o código só verifica o máximo de hóspedes, nunca o mínimo.",
+      "corrigido": "Passou depois do commit 644fd0d, que exige pelo menos 1 hóspede antes de gravar.",
+      "resumo": "O limite '0 hóspedes' mostrou que faltava a validação do mínimo.",
+      "ampliacoes": []
+    },
+    "CT-010": {
+      "entrada": "Quartos 101 e 102 para 6 hóspedes (cabem só 5)",
+      "esperado": "Reserva recusada",
+      "porque": "Classe inválida CE-13 (mais hóspedes que a capacidade) e valor limite logo acima do máximo: 101 + 102 comportam 5, o caso pede 6.",
+      "passos": [
+        "Ana está logada.",
+        "Ela reserva 101 e 102 para 6 hóspedes, de 10/03/2030 a 12/03/2030."
+      ],
+      "verifica": "O sistema recusa e não grava nada.",
+      "original": "Passou: o original já recusava com 'The rooms you selected can't fit the number of guests'.",
+      "corrigido": "Passou.",
+      "resumo": "Junto com o CT-002, confirma a fronteira 5 aceita / 6 recusa.",
+      "ampliacoes": []
+    },
+    "CT-011": {
+      "entrada": "Número de hóspedes escrito por extenso: \"dois\"",
+      "esperado": "Reserva recusada",
+      "obtido": "Erro interno (500): o valor inválido ficou vazio e o sistema quebrou ao compará-lo com a capacidade",
+      "porque": "Classe inválida CE-14: número de hóspedes que não é inteiro.",
+      "passos": [
+        "Ana está logada.",
+        "No campo de hóspedes ela digita 'dois' (reserva do 101 de 10/03/2030 a 12/03/2030)."
+      ],
+      "verifica": "O sistema recusa e não grava nada.",
+      "original": "FALHOU com erro interno 500: TypeError: '>' not supported between instances of 'NoneType' and 'int' (linha 217). Causa (DEF-19): o campo inválido fica vazio (None) e o código o compara com a capacidade sem validar.",
+      "corrigido": "Passou depois do commit 644fd0d, que recusa hóspedes ausentes ou inválidos antes de qualquer conta.",
+      "resumo": "Escrever o número por extenso derrubava o sistema.",
+      "ampliacoes": []
+    },
+    "CT-012": {
+      "entrada": "Quarto 101 ocupado de 10/03/2030 a 12/03/2030; nova reserva de 11/03/2030 a 13/03/2030 (a noite de 11/03 em comum)",
+      "esperado": "Reserva recusada (quarto ocupado)",
+      "porque": "Classe inválida CE-16 (quarto ocupado no período) e valor limite da sobreposição: só UMA noite em comum.",
+      "passos": [
+        "Já existe uma reserva do 101 de 10/03/2030 a 12/03/2030.",
+        "Ana tenta reservar o 101 de 11/03/2030 a 13/03/2030 (a noite de 11/03 está nas duas)."
+      ],
+      "verifica": "O sistema recusa e continua existindo só 1 reserva.",
+      "original": "Passou, mas por acaso: no original a regra de conflito é sempre verdadeira (DEF-01), então ele recusa QUALQUER reserva de um quarto que já tem reserva. Acertou o resultado pelo motivo errado; quem mostra o defeito é o CT-003.",
+      "corrigido": "Passou, agora pelo motivo certo: _periodos_conflitam detecta a noite em comum.",
+      "resumo": "Garante que a correção do DEF-01 não deixou passar sobreposições reais.",
+      "ampliacoes": [
+        {
+          "etapa": "estrutural",
+          "titulo": "Reserva de outro quarto não bloqueia um quarto livre (revelou o DEF-15)",
+          "porque": "Ao ler o laço triplo das linhas 203-212 para cobrir o desvio 208→205, ficou claro que ele compara cada quarto reservado com as datas de TODAS as reservas, de qualquer quarto (falta conferir brid == rid). Esta ampliação prova o problema.",
+          "passos": [
+            "Ana tem o 101 reservado de 10/03/2030 a 12/03/2030.",
+            "Bruno tem o 102 reservado de 20/03/2030 a 22/03/2030.",
+            "Ana tenta reservar o 101 de 20/03/2030 a 22/03/2030 (o 101 está livre nessas datas)."
+          ],
+          "verifica": "O sistema aceita e passam a existir 3 reservas.",
+          "original": "FALHOU: recusado com 'not available'. Causa (DEF-15): o laço junta o quarto 101 (da reserva da Ana) com as datas da reserva do Bruno (20/03) e acusa um conflito que não existe. Estava MASCARADO pelo DEF-01: com a regra sempre verdadeira, tudo já era recusado.",
+          "corrigido": "Passou depois do commit 2d1b2cd: cada quarto é comparado só com as datas da própria reserva."
+        },
+        {
+          "etapa": "mutacao",
+          "titulo": "A ocupação de outra reserva não é herdada pelo quarto",
+          "porque": "O mutante S4 sobreviveu: na consulta de quartos ocupados, a junção 'Booked.brid == Reservations.rid' virou '>='. Faltava um cenário em que a reserva mais nova é do quarto pedido e a mais antiga é de outro quarto.",
+          "passos": [
+            "Ana tem o 102 reservado de 10/03/2030 a 12/03/2030 (reserva nº 1).",
+            "Bruno tem o 101 reservado de 20/03/2030 a 22/03/2030 (reserva nº 2).",
+            "Ana reserva o 101 de 10/03/2030 a 12/03/2030."
+          ],
+          "verifica": "O sistema aceita (o 101 só está ocupado em 20/03) e passam a existir 3 reservas.",
+          "mutante": "Com '>=', o vínculo do 101 (reserva 2) também é ligado à reserva 1 e 'herda' as datas de 10/03. O mutante acha o 101 ocupado e recusa: o teste falha e o mutante morre."
+        }
+      ],
+      "obtido": "Parte funcional igual ao esperado; na ampliação da etapa estrutural, o 101 livre em 20/03/2030 foi recusado: o sistema misturou o quarto de uma reserva com as datas de outra"
+    },
+    "CT-013": {
+      "entrada": "Entrada ontem",
+      "esperado": "Reserva recusada",
+      "porque": "Classe inválida CE-18 (entrada no passado) e valor limite logo abaixo do mínimo: ontem. Por depender do dia, usa a data de ontem, e não uma data fixa.",
+      "passos": [
+        "Ana está logada.",
+        "Ela tenta reservar com entrada ONTEM e saída amanhã."
+      ],
+      "verifica": "O sistema recusa e não grava nada.",
+      "original": "Passou: o original já recusava datas passadas.",
+      "corrigido": "Passou.",
+      "resumo": "Junto com o CT-004, confirma a fronteira ontem recusa / hoje aceita.",
+      "ampliacoes": []
+    },
+    "CT-014": {
+      "entrada": "Data de entrada \"2030-13-01\" (formato errado e mês 13)",
+      "esperado": "Reserva recusada",
+      "obtido": "Erro interno (500): a data inválida ficou vazia e o sistema quebrou ao usá-la",
+      "porque": "Classe inválida CE-20: data fora do formato MM/DD/AAAA.",
+      "passos": [
+        "Ana está logada.",
+        "Ela envia a data de entrada '2030-13-01' (formato errado e mês 13); a saída e o resto estão corretos."
+      ],
+      "verifica": "O sistema recusa e não grava nada.",
+      "original": "FALHOU com erro interno 500: TypeError: combine() argument 1 must be datetime.date, not None (linha 191). Causa (DEF-18): o campo de data inválido fica vazio (None) e o código o usa sem verificar.",
+      "corrigido": "Passou depois do commit 644fd0d, que recusa datas ausentes ou inválidas antes de usá-las.",
+      "resumo": "Uma data mal digitada derrubava o sistema.",
+      "ampliacoes": []
+    },
+    "CT-015": {
+      "entrada": "Saída no mesmo dia da entrada: 10/03/2030 a 10/03/2030 (0 noites)",
+      "esperado": "Reserva recusada",
+      "porque": "Classe inválida CE-22 (saída igual ou anterior à entrada) e valor limite da duração: 0 noites.",
+      "passos": [
+        "Ana está logada.",
+        "Ela tenta reservar com entrada e saída em 10/03/2030."
+      ],
+      "verifica": "O sistema recusa e não grava nada.",
+      "original": "Passou: o original já recusava (saída <= entrada).",
+      "corrigido": "Passou.",
+      "resumo": "Junto com o CT-004, confirma a fronteira 0 noites recusa / 1 noite aceita.",
+      "ampliacoes": [
+        {
+          "etapa": "mutacao",
+          "titulo": "Saída antes da entrada também é recusada",
+          "porque": "O mutante S6 sobreviveu: em reserve, 'saída <= entrada' virou 'saída == entrada'. O caso usava um único exemplo da classe CE-22 (0 noites), que continua recusado no mutante. Faltava o segundo exemplo da classe: saída antes da entrada.",
+          "passos": [
+            "Ana está logada.",
+            "Ela tenta reservar com entrada em 10/03/2030 e saída em 09/03/2030."
+          ],
+          "verifica": "O sistema recusa e não grava nada.",
+          "mutante": "No mutante, 09/03 == 10/03 é falso, a validação deixa passar e o sistema grava uma reserva de −1 noite com custo negativo. O teste espera recusa: mutante morto."
+        }
+      ]
+    }
+  },
+  "defeitos": {
+    "DEF-01": {
+      "descricao": "Depois da primeira reserva de um quarto, o sistema recusava qualquer nova reserva dele, em qualquer data: a regra que verifica conflito de datas era sempre verdadeira.",
+      "correcao": "A regra passou a acusar conflito só quando os períodos realmente se cruzam (commit 2d1b2cd)."
+    },
+    "DEF-02": {
+      "descricao": "Reservar com entrada hoje era recusado: o sistema comparava 'hoje à meia-noite' com 'agora', e meia-noite é sempre antes de agora.",
+      "correcao": "Passou a comparar só as datas, sem as horas (commit 704bc86)."
+    },
+    "DEF-03": {
+      "descricao": "Era possível gravar uma reserva com 0 hóspedes: o sistema só conferia o máximo, nunca o mínimo.",
+      "correcao": "Agora exige pelo menos 1 hóspede (commit 644fd0d)."
+    },
+    "DEF-04": {
+      "descricao": "Digitar texto no campo de quartos derrubava o sistema com erro interno (500).",
+      "correcao": "Os números dos quartos são lidos com tratamento de erro; texto inválido é recusado com mensagem (commit 644fd0d)."
+    },
+    "DEF-05": {
+      "descricao": "Era possível reservar um quarto que não existe, junto com um quarto válido.",
+      "correcao": "Só aceita quartos que existem no hotel (commit 644fd0d)."
+    },
+    "DEF-06": {
+      "descricao": "Repetir o mesmo quarto na lista dobrava a capacidade e o preço da reserva.",
+      "correcao": "Recusa quartos repetidos (commit 644fd0d)."
+    },
+    "DEF-07": {
+      "descricao": "Um visitante sem login que abrisse a reserva derrubava a página com erro interno (500).",
+      "correcao": "Sem login, o visitante volta para a página inicial (commit 8a6c4bd)."
+    },
+    "DEF-15": {
+      "descricao": "O sistema comparava o quarto de uma reserva com as datas de outras reservas e recusava quartos livres. Estava escondido atrás do DEF-01.",
+      "correcao": "Cada quarto é comparado só com as datas da própria reserva (commit 2d1b2cd)."
+    },
+    "DEF-18": {
+      "descricao": "Uma data digitada fora do formato derrubava o sistema com erro interno (500).",
+      "correcao": "Datas inválidas são recusadas com mensagem (commits 644fd0d e 9e66e2d)."
+    },
+    "DEF-19": {
+      "descricao": "Escrever o número de hóspedes por extenso derrubava o sistema com erro interno (500).",
+      "correcao": "Número de hóspedes inválido é recusado com mensagem (commit 644fd0d)."
+    }
+  },
+  "reaproveitados_estrutural": {
+    "CT-001": "Caminho da reserva aceita: usuário logado → formulário enviado → dados válidos → datas válidas → quarto livre → hóspedes cabem → grava → vai para /rooms.",
+    "CT-005": "Caminho do visitante sem login: o primeiro teste (usuário logado?) dá 'Não' → aviso → volta à página inicial.",
+    "CT-009": "Caminho do dado inválido: o teste 'Algum dado inválido?' dá 'Sim' → aviso → volta ao formulário.",
+    "CT-012": "Caminho do quarto ocupado: 'Este quarto está ocupado?' dá 'Sim' → aviso → volta ao formulário.",
+    "CT-013": "Caminho da data no passado: 'Datas inválidas?' dá 'Sim' → aviso → volta ao formulário."
+  }
+}

@@ -1,0 +1,759 @@
+{
+  "runId": "PYTEST-20261001-155448",
+  "finishedAt": "2026-10-01T15:54:48-03:00",
+  "exitCode": 0,
+  "duration": 2.375,
+  "mapped": [
+    {
+      "caseId": "CT-001",
+      "result": "Aprovado",
+      "tests": 2,
+      "duration": 0.104,
+      "actual": "pytest: 2 teste(s) automatizado(s); resultado Aprovado; tempo 0.104s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_001_reserva_simples_de_um_quarto_e_aceita",
+        "tests.test_02_estrutural::test_CT_001_ampliacao_formulario_aberto_antes_e_outro_quarto_ocupado"
+      ]
+    },
+    {
+      "caseId": "CT-002",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.022,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.022s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_002_reserva_de_dois_quartos_com_lotacao_maxima_e_aceita"
+      ]
+    },
+    {
+      "caseId": "CT-003",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.032,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.032s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_003_estadia_que_comeca_quando_outra_termina_e_aceita"
+      ]
+    },
+    {
+      "caseId": "CT-004",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.029,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.029s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_004_entrada_hoje_e_aceita"
+      ]
+    },
+    {
+      "caseId": "CT-005",
+      "result": "Aprovado",
+      "tests": 2,
+      "duration": 0.063,
+      "actual": "pytest: 2 teste(s) automatizado(s); resultado Aprovado; tempo 0.063s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_005_visitante_sem_login_nao_reserva",
+        "tests.test_02_estrutural::test_CT_005_ampliacao_usuario_que_saiu_nao_reserva"
+      ]
+    },
+    {
+      "caseId": "CT-006",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.021,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.021s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_006_quarto_escrito_em_texto_e_recusado"
+      ]
+    },
+    {
+      "caseId": "CT-007",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.04,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.040s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_007_quarto_que_nao_existe_e_recusado"
+      ]
+    },
+    {
+      "caseId": "CT-008",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.04,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.040s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_008_quarto_repetido_e_recusado"
+      ]
+    },
+    {
+      "caseId": "CT-009",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.03,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.030s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_009_reserva_sem_hospedes_e_recusada"
+      ]
+    },
+    {
+      "caseId": "CT-010",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.027,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.027s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_010_hospedes_acima_da_capacidade_sao_recusados"
+      ]
+    },
+    {
+      "caseId": "CT-011",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.025,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.025s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_011_hospedes_escritos_por_extenso_sao_recusados"
+      ]
+    },
+    {
+      "caseId": "CT-012",
+      "result": "Aprovado",
+      "tests": 2,
+      "duration": 0.095,
+      "actual": "pytest: 2 teste(s) automatizado(s); resultado Aprovado; tempo 0.095s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_012_quarto_ocupado_no_periodo_e_recusado",
+        "tests.test_02_estrutural::test_CT_012_ampliacao_reserva_de_outro_quarto_nao_bloqueia"
+      ]
+    },
+    {
+      "caseId": "CT-013",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.04,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.040s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_013_entrada_no_passado_e_recusada"
+      ]
+    },
+    {
+      "caseId": "CT-014",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.028,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.028s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_014_data_em_formato_errado_e_recusada"
+      ]
+    },
+    {
+      "caseId": "CT-015",
+      "result": "Aprovado",
+      "tests": 1,
+      "duration": 0.026,
+      "actual": "pytest: 1 teste(s) automatizado(s); resultado Aprovado; tempo 0.026s.",
+      "nodeIds": [
+        "tests.test_01_funcional::test_CT_015_saida_igual_a_entrada_e_recusada"
+      ]
+    }
+  ],
+  "unmapped": [],
+  "coverage": {
+    "statementCoverage": 100.0,
+    "branchCoverage": 100.0,
+    "statements": 65,
+    "coveredLines": 65,
+    "branches": 28,
+    "coveredBranches": 28,
+    "scope": [
+      "_ler_quartos",
+      "_periodos_conflitam",
+      "_quartos_ocupados",
+      "_sessao_autenticada",
+      "cal_cost",
+      "reserve"
+    ]
+  },
+  "caseCoverage": [
+    {
+      "caseId": "CT-001",
+      "files": {
+        "hotel/views.py": [
+          12,
+          17,
+          22,
+          23,
+          24,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          226,
+          227,
+          230,
+          233,
+          234,
+          235,
+          236,
+          239,
+          240,
+          241,
+          242,
+          247,
+          248,
+          249,
+          251,
+          252,
+          253,
+          254,
+          255,
+          256,
+          262,
+          263,
+          264,
+          265,
+          266,
+          267,
+          268,
+          269,
+          270,
+          271,
+          272,
+          273,
+          274,
+          275
+        ]
+      },
+      "lineCount": 53
+    },
+    {
+      "caseId": "CT-002",
+      "files": {
+        "hotel/views.py": [
+          12,
+          22,
+          23,
+          24,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          226,
+          227,
+          230,
+          233,
+          234,
+          235,
+          236,
+          239,
+          240,
+          241,
+          242,
+          247,
+          248,
+          249,
+          251,
+          252,
+          253,
+          254,
+          255,
+          262,
+          263,
+          264,
+          265,
+          266,
+          267,
+          268,
+          269,
+          270,
+          271,
+          272,
+          273,
+          274,
+          275
+        ]
+      },
+      "lineCount": 51
+    },
+    {
+      "caseId": "CT-003",
+      "files": {
+        "hotel/views.py": [
+          12,
+          17,
+          22,
+          23,
+          24,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          226,
+          227,
+          230,
+          233,
+          234,
+          235,
+          236,
+          239,
+          240,
+          241,
+          242,
+          247,
+          248,
+          249,
+          251,
+          252,
+          253,
+          254,
+          255,
+          262,
+          263,
+          264,
+          265,
+          266,
+          267,
+          268,
+          269,
+          270,
+          271,
+          272,
+          273,
+          274,
+          275
+        ]
+      },
+      "lineCount": 52
+    },
+    {
+      "caseId": "CT-004",
+      "files": {
+        "hotel/views.py": [
+          12,
+          22,
+          23,
+          24,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          226,
+          227,
+          230,
+          233,
+          234,
+          235,
+          236,
+          239,
+          240,
+          241,
+          242,
+          247,
+          248,
+          249,
+          251,
+          252,
+          253,
+          254,
+          255,
+          262,
+          263,
+          264,
+          265,
+          266,
+          267,
+          268,
+          269,
+          270,
+          271,
+          272,
+          273,
+          274,
+          275
+        ]
+      },
+      "lineCount": 51
+    },
+    {
+      "caseId": "CT-005",
+      "files": {
+        "hotel/views.py": [
+          12,
+          214,
+          257,
+          258
+        ]
+      },
+      "lineCount": 4
+    },
+    {
+      "caseId": "CT-006",
+      "files": {
+        "hotel/views.py": [
+          12,
+          29,
+          30,
+          31,
+          32,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          224,
+          225
+        ]
+      },
+      "lineCount": 16
+    },
+    {
+      "caseId": "CT-007",
+      "files": {
+        "hotel/views.py": [
+          12,
+          29,
+          30,
+          33,
+          34,
+          35,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          224,
+          225
+        ]
+      },
+      "lineCount": 17
+    },
+    {
+      "caseId": "CT-008",
+      "files": {
+        "hotel/views.py": [
+          12,
+          29,
+          30,
+          33,
+          34,
+          35,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          224,
+          225
+        ]
+      },
+      "lineCount": 17
+    },
+    {
+      "caseId": "CT-009",
+      "files": {
+        "hotel/views.py": [
+          12,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          224,
+          225
+        ]
+      },
+      "lineCount": 17
+    },
+    {
+      "caseId": "CT-010",
+      "files": {
+        "hotel/views.py": [
+          12,
+          22,
+          23,
+          24,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          226,
+          227,
+          230,
+          233,
+          234,
+          235,
+          236,
+          239,
+          240,
+          241,
+          242,
+          243,
+          244,
+          245
+        ]
+      },
+      "lineCount": 32
+    },
+    {
+      "caseId": "CT-011",
+      "files": {
+        "hotel/views.py": [
+          12,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          224,
+          225
+        ]
+      },
+      "lineCount": 17
+    },
+    {
+      "caseId": "CT-012",
+      "files": {
+        "hotel/views.py": [
+          12,
+          17,
+          22,
+          23,
+          24,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          226,
+          227,
+          230,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240,
+          241,
+          242,
+          247,
+          248,
+          249,
+          251,
+          252,
+          253,
+          254,
+          255,
+          262,
+          263,
+          264,
+          265,
+          266,
+          267,
+          268,
+          269,
+          270,
+          271,
+          272,
+          273,
+          274,
+          275
+        ]
+      },
+      "lineCount": 54
+    },
+    {
+      "caseId": "CT-013",
+      "files": {
+        "hotel/views.py": [
+          12,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          226,
+          227,
+          230,
+          231,
+          232
+        ]
+      },
+      "lineCount": 20
+    },
+    {
+      "caseId": "CT-014",
+      "files": {
+        "hotel/views.py": [
+          12,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          224,
+          225
+        ]
+      },
+      "lineCount": 17
+    },
+    {
+      "caseId": "CT-015",
+      "files": {
+        "hotel/views.py": [
+          12,
+          29,
+          30,
+          33,
+          34,
+          36,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          223,
+          226,
+          227,
+          230,
+          231,
+          232
+        ]
+      },
+      "lineCount": 20
+    }
+  ],
+  "coverageEnabled": true,
+  "coverageContextError": "",
+  "environment": "Python 3.9.25 / Windows 10",
+  "command": [
+    "C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-p",
+    "vvtestlab_pytest_plugin",
+    "--junitxml=C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.vvtestlab\\junit.xml",
+    "-q",
+    "tests",
+    "-m",
+    "funcional or estrutural",
+    "--cov=hotel.views",
+    "--cov-branch",
+    "--cov-context=test",
+    "--cov-report="
+  ],
+  "stdout": "..................                                                       [100%]\n============================== warnings summary ===============================\n.venv\\lib\\site-packages\\flask_sqlalchemy\\__init__.py:800\n  C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.venv\\lib\\site-packages\\flask_sqlalchemy\\__init__.py:800: UserWarning: SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True to suppress this warning.\n    warnings.warn('SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True to suppress this warning.')\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n- generated xml file: C:\\PROJETOS\\MESTRADO\\Verificação de Validação\\GESTÃO DE TESTES\\output\\hotel-management-testado\\.vvtestlab\\junit.xml -\n18 passed, 18 deselected, 1 warning in 0.75s\n",
+  "stderr": ""
+}

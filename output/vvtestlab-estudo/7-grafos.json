@@ -1,0 +1,1298 @@
+{
+  "analyzedAt": "2026-10-01T16:10:44-03:00",
+  "filesScanned": 21,
+  "functionsFound": 113,
+  "graphs": [
+    {
+      "method": "hotel.views.reserve",
+      "qualifiedName": "reserve",
+      "file": "hotel/views.py",
+      "line": 213,
+      "endLine": 258,
+      "sourceHash": "ff5fbafdd4899b1a",
+      "nodes": [
+        {
+          "id": "N001",
+          "type": "entry",
+          "label": "Entrada",
+          "line": 213,
+          "endLine": 213
+        },
+        {
+          "id": "N002",
+          "type": "exit",
+          "label": "Saída",
+          "line": 258,
+          "endLine": 258
+        },
+        {
+          "id": "N003",
+          "type": "decision",
+          "label": "Se: _sessao_autenticada()",
+          "line": 214,
+          "endLine": 256
+        },
+        {
+          "id": "N004",
+          "type": "statement",
+          "label": "reservation = ReserveForm(request.form)",
+          "line": 215,
+          "endLine": 215
+        },
+        {
+          "id": "N005",
+          "type": "statement",
+          "label": "us = User.query.filter_by(username=session['current_user']).first()",
+          "line": 216,
+          "endLine": 216
+        },
+        {
+          "id": "N006",
+          "type": "decision",
+          "label": "Se: request.method == 'POST'",
+          "line": 217,
+          "endLine": 255
+        },
+        {
+          "id": "N007",
+          "type": "statement",
+          "label": "room_list = _ler_quartos(reservation.room_numbers.data)",
+          "line": 218,
+          "endLine": 218
+        },
+        {
+          "id": "N008",
+          "type": "statement",
+          "label": "num = reservation.num_guests.data",
+          "line": 219,
+          "endLine": 219
+        },
+        {
+          "id": "N009",
+          "type": "statement",
+          "label": "checkin = reservation.checkin_date.data",
+          "line": 220,
+          "endLine": 220
+        },
+        {
+          "id": "N010",
+          "type": "statement",
+          "label": "checkout = reservation.checkout_date.data",
+          "line": 221,
+          "endLine": 221
+        },
+        {
+          "id": "N011",
+          "type": "decision",
+          "label": "Se: room_list is None or num is None or num < 1 or (checkin is None) or (checkout is None)",
+          "line": 223,
+          "endLine": 225
+        },
+        {
+          "id": "N012",
+          "type": "statement",
+          "label": "flash(\"Please recheck the room numbers, the number of guests and the dates!\")",
+          "line": 224,
+          "endLine": 224
+        },
+        {
+          "id": "N013",
+          "type": "return",
+          "label": "return redirect(url_for('reserve'))",
+          "line": 225,
+          "endLine": 225
+        },
+        {
+          "id": "N014",
+          "type": "statement",
+          "label": "d1 = datetime.datetime.combine(checkin, datetime.time(0, 0))",
+          "line": 226,
+          "endLine": 226
+        },
+        {
+          "id": "N015",
+          "type": "statement",
+          "label": "d2 = datetime.datetime.combine(checkout, datetime.time(0, 0))",
+          "line": 227,
+          "endLine": 227
+        },
+        {
+          "id": "N016",
+          "type": "decision",
+          "label": "Se: d2 <= d1 or d1.date() < datetime.date.today()",
+          "line": 230,
+          "endLine": 232
+        },
+        {
+          "id": "N017",
+          "type": "statement",
+          "label": "flash(\"Please recheck your date! It has to be at least today! \")",
+          "line": 231,
+          "endLine": 231
+        },
+        {
+          "id": "N018",
+          "type": "return",
+          "label": "return redirect(url_for('reserve'))",
+          "line": 232,
+          "endLine": 232
+        },
+        {
+          "id": "N019",
+          "type": "statement",
+          "label": "total_num = 0",
+          "line": 233,
+          "endLine": 233
+        },
+        {
+          "id": "N020",
+          "type": "statement",
+          "label": "ocupados = _quartos_ocupados(d1, d2)",
+          "line": 234,
+          "endLine": 234
+        },
+        {
+          "id": "N021",
+          "type": "loop",
+          "label": "Para cada: room_list",
+          "line": 235,
+          "endLine": 238
+        },
+        {
+          "id": "N022",
+          "type": "decision",
+          "label": "Se: each in ocupados",
+          "line": 236,
+          "endLine": 238
+        },
+        {
+          "id": "N023",
+          "type": "statement",
+          "label": "flash(\"The room you are reserving is not available at the time you selected!\")",
+          "line": 237,
+          "endLine": 237
+        },
+        {
+          "id": "N024",
+          "type": "return",
+          "label": "return redirect(url_for('reserve'))",
+          "line": 238,
+          "endLine": 238
+        },
+        {
+          "id": "N025",
+          "type": "loop",
+          "label": "Para cada: Rooms.query.all()",
+          "line": 239,
+          "endLine": 241
+        },
+        {
+          "id": "N026",
+          "type": "decision",
+          "label": "Se: each_room.room_number in room_list",
+          "line": 240,
+          "endLine": 241
+        },
+        {
+          "id": "N027",
+          "type": "statement",
+          "label": "total_num += each_room.capacity",
+          "line": 241,
+          "endLine": 241
+        },
+        {
+          "id": "N028",
+          "type": "decision",
+          "label": "Se: num > total_num",
+          "line": 242,
+          "endLine": 245
+        },
+        {
+          "id": "N029",
+          "type": "statement",
+          "label": "flash( \"The rooms you selected can't fit the number of guests you entered. Please restart the reservation!\")",
+          "line": 243,
+          "endLine": 244
+        },
+        {
+          "id": "N030",
+          "type": "return",
+          "label": "return redirect(url_for('reserve'))",
+          "line": 245,
+          "endLine": 245
+        },
+        {
+          "id": "N031",
+          "type": "statement",
+          "label": "reserve = Reservations(us.uid, checkin, checkout, num, 0)",
+          "line": 247,
+          "endLine": 247
+        },
+        {
+          "id": "N032",
+          "type": "statement",
+          "label": "db.session.add(reserve)",
+          "line": 248,
+          "endLine": 248
+        },
+        {
+          "id": "N033",
+          "type": "statement",
+          "label": "db.session.flush()",
+          "line": 249,
+          "endLine": 249
+        },
+        {
+          "id": "N034",
+          "type": "loop",
+          "label": "Para cada: room_list",
+          "line": 251,
+          "endLine": 252
+        },
+        {
+          "id": "N035",
+          "type": "statement",
+          "label": "db.session.add(Booked(reserve.rid, each))",
+          "line": 252,
+          "endLine": 252
+        },
+        {
+          "id": "N036",
+          "type": "statement",
+          "label": "reserve.costs = cal_cost(reserve.rid)",
+          "line": 253,
+          "endLine": 253
+        },
+        {
+          "id": "N037",
+          "type": "statement",
+          "label": "db.session.commit()",
+          "line": 254,
+          "endLine": 254
+        },
+        {
+          "id": "N038",
+          "type": "return",
+          "label": "return redirect(url_for('show_rooms'))",
+          "line": 255,
+          "endLine": 255
+        },
+        {
+          "id": "N039",
+          "type": "return",
+          "label": "return render_template('reservation.html', reservation=reservation)",
+          "line": 256,
+          "endLine": 256
+        },
+        {
+          "id": "N040",
+          "type": "statement",
+          "label": "flash(\"User Not Authenticated !\")",
+          "line": 257,
+          "endLine": 257
+        },
+        {
+          "id": "N041",
+          "type": "return",
+          "label": "return redirect(url_for('index'))",
+          "line": 258,
+          "endLine": 258
+        }
+      ],
+      "edges": [
+        {
+          "id": "E001",
+          "from": "N001",
+          "to": "N003",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E002",
+          "from": "N003",
+          "to": "N004",
+          "label": "Verdadeiro",
+          "kind": "branch"
+        },
+        {
+          "id": "E003",
+          "from": "N004",
+          "to": "N005",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E004",
+          "from": "N005",
+          "to": "N006",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E005",
+          "from": "N006",
+          "to": "N007",
+          "label": "Verdadeiro",
+          "kind": "branch"
+        },
+        {
+          "id": "E006",
+          "from": "N007",
+          "to": "N008",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E007",
+          "from": "N008",
+          "to": "N009",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E008",
+          "from": "N009",
+          "to": "N010",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E009",
+          "from": "N010",
+          "to": "N011",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E010",
+          "from": "N011",
+          "to": "N012",
+          "label": "Verdadeiro",
+          "kind": "branch"
+        },
+        {
+          "id": "E011",
+          "from": "N012",
+          "to": "N013",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E012",
+          "from": "N013",
+          "to": "N002",
+          "label": "Retorno",
+          "kind": "terminal"
+        },
+        {
+          "id": "E013",
+          "from": "N011",
+          "to": "N014",
+          "label": "Falso",
+          "kind": "branch"
+        },
+        {
+          "id": "E014",
+          "from": "N014",
+          "to": "N015",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E015",
+          "from": "N015",
+          "to": "N016",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E016",
+          "from": "N016",
+          "to": "N017",
+          "label": "Verdadeiro",
+          "kind": "branch"
+        },
+        {
+          "id": "E017",
+          "from": "N017",
+          "to": "N018",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E018",
+          "from": "N018",
+          "to": "N002",
+          "label": "Retorno",
+          "kind": "terminal"
+        },
+        {
+          "id": "E019",
+          "from": "N016",
+          "to": "N019",
+          "label": "Falso",
+          "kind": "branch"
+        },
+        {
+          "id": "E020",
+          "from": "N019",
+          "to": "N020",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E021",
+          "from": "N020",
+          "to": "N021",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E022",
+          "from": "N021",
+          "to": "N022",
+          "label": "Iterar",
+          "kind": "branch"
+        },
+        {
+          "id": "E023",
+          "from": "N022",
+          "to": "N023",
+          "label": "Verdadeiro",
+          "kind": "branch"
+        },
+        {
+          "id": "E024",
+          "from": "N023",
+          "to": "N024",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E025",
+          "from": "N024",
+          "to": "N002",
+          "label": "Retorno",
+          "kind": "terminal"
+        },
+        {
+          "id": "E026",
+          "from": "N022",
+          "to": "N021",
+          "label": "Próxima iteração",
+          "kind": "loop"
+        },
+        {
+          "id": "E027",
+          "from": "N021",
+          "to": "N025",
+          "label": "Encerrar",
+          "kind": "branch"
+        },
+        {
+          "id": "E028",
+          "from": "N025",
+          "to": "N026",
+          "label": "Iterar",
+          "kind": "branch"
+        },
+        {
+          "id": "E029",
+          "from": "N026",
+          "to": "N027",
+          "label": "Verdadeiro",
+          "kind": "branch"
+        },
+        {
+          "id": "E030",
+          "from": "N027",
+          "to": "N025",
+          "label": "Próxima iteração",
+          "kind": "loop"
+        },
+        {
+          "id": "E031",
+          "from": "N026",
+          "to": "N025",
+          "label": "Próxima iteração",
+          "kind": "loop"
+        },
+        {
+          "id": "E032",
+          "from": "N025",
+          "to": "N028",
+          "label": "Encerrar",
+          "kind": "branch"
+        },
+        {
+          "id": "E033",
+          "from": "N028",
+          "to": "N029",
+          "label": "Verdadeiro",
+          "kind": "branch"
+        },
+        {
+          "id": "E034",
+          "from": "N029",
+          "to": "N030",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E035",
+          "from": "N030",
+          "to": "N002",
+          "label": "Retorno",
+          "kind": "terminal"
+        },
+        {
+          "id": "E036",
+          "from": "N028",
+          "to": "N031",
+          "label": "Falso",
+          "kind": "branch"
+        },
+        {
+          "id": "E037",
+          "from": "N031",
+          "to": "N032",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E038",
+          "from": "N032",
+          "to": "N033",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E039",
+          "from": "N033",
+          "to": "N034",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E040",
+          "from": "N034",
+          "to": "N035",
+          "label": "Iterar",
+          "kind": "branch"
+        },
+        {
+          "id": "E041",
+          "from": "N035",
+          "to": "N034",
+          "label": "Próxima iteração",
+          "kind": "loop"
+        },
+        {
+          "id": "E042",
+          "from": "N034",
+          "to": "N036",
+          "label": "Encerrar",
+          "kind": "branch"
+        },
+        {
+          "id": "E043",
+          "from": "N036",
+          "to": "N037",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E044",
+          "from": "N037",
+          "to": "N038",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E045",
+          "from": "N038",
+          "to": "N002",
+          "label": "Retorno",
+          "kind": "terminal"
+        },
+        {
+          "id": "E046",
+          "from": "N006",
+          "to": "N039",
+          "label": "Falso",
+          "kind": "branch"
+        },
+        {
+          "id": "E047",
+          "from": "N039",
+          "to": "N002",
+          "label": "Retorno",
+          "kind": "terminal"
+        },
+        {
+          "id": "E048",
+          "from": "N003",
+          "to": "N040",
+          "label": "Falso",
+          "kind": "branch"
+        },
+        {
+          "id": "E049",
+          "from": "N040",
+          "to": "N041",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E050",
+          "from": "N041",
+          "to": "N002",
+          "label": "Retorno",
+          "kind": "terminal"
+        }
+      ],
+      "paths": [
+        {
+          "id": "P001",
+          "nodeIds": [
+            "N001",
+            "N003",
+            "N004",
+            "N005",
+            "N006",
+            "N007",
+            "N008",
+            "N009",
+            "N010",
+            "N011",
+            "N012",
+            "N013",
+            "N002"
+          ],
+          "edgeIds": [
+            "E001",
+            "E002",
+            "E003",
+            "E004",
+            "E005",
+            "E006",
+            "E007",
+            "E008",
+            "E009",
+            "E010",
+            "E011",
+            "E012"
+          ],
+          "kind": "Simples livre de laço"
+        },
+        {
+          "id": "P002",
+          "nodeIds": [
+            "N001",
+            "N003",
+            "N004",
+            "N005",
+            "N006",
+            "N007",
+            "N008",
+            "N009",
+            "N010",
+            "N011",
+            "N014",
+            "N015",
+            "N016",
+            "N017",
+            "N018",
+            "N002"
+          ],
+          "edgeIds": [
+            "E001",
+            "E002",
+            "E003",
+            "E004",
+            "E005",
+            "E006",
+            "E007",
+            "E008",
+            "E009",
+            "E013",
+            "E014",
+            "E015",
+            "E016",
+            "E017",
+            "E018"
+          ],
+          "kind": "Simples livre de laço"
+        },
+        {
+          "id": "P003",
+          "nodeIds": [
+            "N001",
+            "N003",
+            "N004",
+            "N005",
+            "N006",
+            "N007",
+            "N008",
+            "N009",
+            "N010",
+            "N011",
+            "N014",
+            "N015",
+            "N016",
+            "N019",
+            "N020",
+            "N021",
+            "N022",
+            "N023",
+            "N024",
+            "N002"
+          ],
+          "edgeIds": [
+            "E001",
+            "E002",
+            "E003",
+            "E004",
+            "E005",
+            "E006",
+            "E007",
+            "E008",
+            "E009",
+            "E013",
+            "E014",
+            "E015",
+            "E019",
+            "E020",
+            "E021",
+            "E022",
+            "E023",
+            "E024",
+            "E025"
+          ],
+          "kind": "Simples livre de laço"
+        },
+        {
+          "id": "P004",
+          "nodeIds": [
+            "N001",
+            "N003",
+            "N004",
+            "N005",
+            "N006",
+            "N007",
+            "N008",
+            "N009",
+            "N010",
+            "N011",
+            "N014",
+            "N015",
+            "N016",
+            "N019",
+            "N020",
+            "N021",
+            "N025",
+            "N028",
+            "N029",
+            "N030",
+            "N002"
+          ],
+          "edgeIds": [
+            "E001",
+            "E002",
+            "E003",
+            "E004",
+            "E005",
+            "E006",
+            "E007",
+            "E008",
+            "E009",
+            "E013",
+            "E014",
+            "E015",
+            "E019",
+            "E020",
+            "E021",
+            "E027",
+            "E032",
+            "E033",
+            "E034",
+            "E035"
+          ],
+          "kind": "Simples livre de laço"
+        },
+        {
+          "id": "P005",
+          "nodeIds": [
+            "N001",
+            "N003",
+            "N004",
+            "N005",
+            "N006",
+            "N007",
+            "N008",
+            "N009",
+            "N010",
+            "N011",
+            "N014",
+            "N015",
+            "N016",
+            "N019",
+            "N020",
+            "N021",
+            "N025",
+            "N028",
+            "N031",
+            "N032",
+            "N033",
+            "N034",
+            "N036",
+            "N037",
+            "N038",
+            "N002"
+          ],
+          "edgeIds": [
+            "E001",
+            "E002",
+            "E003",
+            "E004",
+            "E005",
+            "E006",
+            "E007",
+            "E008",
+            "E009",
+            "E013",
+            "E014",
+            "E015",
+            "E019",
+            "E020",
+            "E021",
+            "E027",
+            "E032",
+            "E036",
+            "E037",
+            "E038",
+            "E039",
+            "E042",
+            "E043",
+            "E044",
+            "E045"
+          ],
+          "kind": "Simples livre de laço"
+        },
+        {
+          "id": "P006",
+          "nodeIds": [
+            "N001",
+            "N003",
+            "N004",
+            "N005",
+            "N006",
+            "N039",
+            "N002"
+          ],
+          "edgeIds": [
+            "E001",
+            "E002",
+            "E003",
+            "E004",
+            "E046",
+            "E047"
+          ],
+          "kind": "Simples livre de laço"
+        },
+        {
+          "id": "P007",
+          "nodeIds": [
+            "N001",
+            "N003",
+            "N040",
+            "N041",
+            "N002"
+          ],
+          "edgeIds": [
+            "E001",
+            "E048",
+            "E049",
+            "E050"
+          ],
+          "kind": "Simples livre de laço"
+        }
+      ],
+      "metrics": {
+        "nodes": 41,
+        "edges": 50,
+        "simpleLoopFreePaths": 7,
+        "cyclomaticComplexity": 11,
+        "pathsTruncated": false
+      },
+      "requirementId": "REQ-01",
+      "requestedMethod": "reserve"
+    },
+    {
+      "method": "hotel.views._periodos_conflitam",
+      "qualifiedName": "_periodos_conflitam",
+      "file": "hotel/views.py",
+      "line": 15,
+      "endLine": 17,
+      "sourceHash": "ff5fbafdd4899b1a",
+      "nodes": [
+        {
+          "id": "N001",
+          "type": "entry",
+          "label": "Entrada",
+          "line": 15,
+          "endLine": 15
+        },
+        {
+          "id": "N002",
+          "type": "exit",
+          "label": "Saída",
+          "line": 17,
+          "endLine": 17
+        },
+        {
+          "id": "N003",
+          "type": "return",
+          "label": "return entrada_a < saida_b and entrada_b < saida_a",
+          "line": 17,
+          "endLine": 17
+        }
+      ],
+      "edges": [
+        {
+          "id": "E001",
+          "from": "N001",
+          "to": "N003",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E002",
+          "from": "N003",
+          "to": "N002",
+          "label": "Retorno",
+          "kind": "terminal"
+        }
+      ],
+      "paths": [
+        {
+          "id": "P001",
+          "nodeIds": [
+            "N001",
+            "N003",
+            "N002"
+          ],
+          "edgeIds": [
+            "E001",
+            "E002"
+          ],
+          "kind": "Simples livre de laço"
+        }
+      ],
+      "metrics": {
+        "nodes": 3,
+        "edges": 2,
+        "simpleLoopFreePaths": 1,
+        "cyclomaticComplexity": 1,
+        "pathsTruncated": false
+      },
+      "requirementId": "REQ-02",
+      "requestedMethod": "_periodos_conflitam"
+    },
+    {
+      "method": "hotel.views.cal_cost",
+      "qualifiedName": "cal_cost",
+      "file": "hotel/views.py",
+      "line": 261,
+      "endLine": 275,
+      "sourceHash": "ff5fbafdd4899b1a",
+      "nodes": [
+        {
+          "id": "N001",
+          "type": "entry",
+          "label": "Entrada",
+          "line": 261,
+          "endLine": 261
+        },
+        {
+          "id": "N002",
+          "type": "exit",
+          "label": "Saída",
+          "line": 275,
+          "endLine": 275
+        },
+        {
+          "id": "N003",
+          "type": "statement",
+          "label": "booked_room_list = Booked.query.filter_by(brid=rid).all()",
+          "line": 262,
+          "endLine": 262
+        },
+        {
+          "id": "N004",
+          "type": "statement",
+          "label": "room_list = Rooms.query.all()",
+          "line": 263,
+          "endLine": 263
+        },
+        {
+          "id": "N005",
+          "type": "statement",
+          "label": "cost_daily = 0",
+          "line": 264,
+          "endLine": 264
+        },
+        {
+          "id": "N006",
+          "type": "loop",
+          "label": "Para cada: booked_room_list",
+          "line": 265,
+          "endLine": 269
+        },
+        {
+          "id": "N007",
+          "type": "statement",
+          "label": "each_room_id = each.room_id",
+          "line": 266,
+          "endLine": 266
+        },
+        {
+          "id": "N008",
+          "type": "loop",
+          "label": "Para cada: room_list",
+          "line": 267,
+          "endLine": 269
+        },
+        {
+          "id": "N009",
+          "type": "decision",
+          "label": "Se: each_room_id == e.room_number",
+          "line": 268,
+          "endLine": 269
+        },
+        {
+          "id": "N010",
+          "type": "statement",
+          "label": "cost_daily += e.cost",
+          "line": 269,
+          "endLine": 269
+        },
+        {
+          "id": "N011",
+          "type": "statement",
+          "label": "cur_res = Reservations.query.get(rid)",
+          "line": 270,
+          "endLine": 270
+        },
+        {
+          "id": "N012",
+          "type": "statement",
+          "label": "checkin = cur_res.checkin_date",
+          "line": 271,
+          "endLine": 271
+        },
+        {
+          "id": "N013",
+          "type": "statement",
+          "label": "checkout = cur_res.checkout_date",
+          "line": 272,
+          "endLine": 272
+        },
+        {
+          "id": "N014",
+          "type": "statement",
+          "label": "dateRange = (checkout - checkin).days",
+          "line": 273,
+          "endLine": 273
+        },
+        {
+          "id": "N015",
+          "type": "statement",
+          "label": "total_cost = cost_daily * dateRange",
+          "line": 274,
+          "endLine": 274
+        },
+        {
+          "id": "N016",
+          "type": "return",
+          "label": "return total_cost",
+          "line": 275,
+          "endLine": 275
+        }
+      ],
+      "edges": [
+        {
+          "id": "E001",
+          "from": "N001",
+          "to": "N003",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E002",
+          "from": "N003",
+          "to": "N004",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E003",
+          "from": "N004",
+          "to": "N005",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E004",
+          "from": "N005",
+          "to": "N006",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E005",
+          "from": "N006",
+          "to": "N007",
+          "label": "Iterar",
+          "kind": "branch"
+        },
+        {
+          "id": "E006",
+          "from": "N007",
+          "to": "N008",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E007",
+          "from": "N008",
+          "to": "N009",
+          "label": "Iterar",
+          "kind": "branch"
+        },
+        {
+          "id": "E008",
+          "from": "N009",
+          "to": "N010",
+          "label": "Verdadeiro",
+          "kind": "branch"
+        },
+        {
+          "id": "E009",
+          "from": "N010",
+          "to": "N008",
+          "label": "Próxima iteração",
+          "kind": "loop"
+        },
+        {
+          "id": "E010",
+          "from": "N009",
+          "to": "N008",
+          "label": "Próxima iteração",
+          "kind": "loop"
+        },
+        {
+          "id": "E011",
+          "from": "N008",
+          "to": "N006",
+          "label": "Próxima iteração",
+          "kind": "loop"
+        },
+        {
+          "id": "E012",
+          "from": "N006",
+          "to": "N011",
+          "label": "Encerrar",
+          "kind": "branch"
+        },
+        {
+          "id": "E013",
+          "from": "N011",
+          "to": "N012",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E014",
+          "from": "N012",
+          "to": "N013",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E015",
+          "from": "N013",
+          "to": "N014",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E016",
+          "from": "N014",
+          "to": "N015",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E017",
+          "from": "N015",
+          "to": "N016",
+          "label": "",
+          "kind": "normal"
+        },
+        {
+          "id": "E018",
+          "from": "N016",
+          "to": "N002",
+          "label": "Retorno",
+          "kind": "terminal"
+        }
+      ],
+      "paths": [
+        {
+          "id": "P001",
+          "nodeIds": [
+            "N001",
+            "N003",
+            "N004",
+            "N005",
+            "N006",
+            "N011",
+            "N012",
+            "N013",
+            "N014",
+            "N015",
+            "N016",
+            "N002"
+          ],
+          "edgeIds": [
+            "E001",
+            "E002",
+            "E003",
+            "E004",
+            "E012",
+            "E013",
+            "E014",
+            "E015",
+            "E016",
+            "E017",
+            "E018"
+          ],
+          "kind": "Simples livre de laço"
+        }
+      ],
+      "metrics": {
+        "nodes": 16,
+        "edges": 18,
+        "simpleLoopFreePaths": 1,
+        "cyclomaticComplexity": 4,
+        "pathsTruncated": false
+      },
+      "requirementId": "REQ-03",
+      "requestedMethod": "cal_cost"
+    }
+  ],
+  "unresolved": [],
+  "warnings": [],
+  "parseErrors": []
+}

@@ -1,0 +1,71 @@
+{
+  "nome": "Hotel Management System",
+  "resumo": "Sistema web de gestão hoteleira escrito em Python com Flask. O hóspede cria uma conta, entra no sistema, consulta quais quartos estão livres em um período, reserva um ou mais quartos (o sistema calcula o custo pelas diárias), acompanha as reservas em \"My Account\", altera, cancela e registra o pagamento. É o software de terceiros sobre o qual aplicamos as três técnicas de teste.",
+  "links": {
+    "original": "https://github.com/CrystalWang1225/Hotel_Management_System",
+    "fork": "https://github.com/gabrielfjm/Hotel_Management_System"
+  },
+  "contexto": {
+    "autoria": "Crystal Yuecen Wang (diagrama ER assinado com Kenny Huang)",
+    "origem": "Projeto final da disciplina ECE 464 – Databases",
+    "orientacao": "Prof. Eugene Sokolov",
+    "proposito": "Construir um sistema de gestão hoteleira eficiente e seguro, que ajude o negócio a se manter organizado e com as informações acessíveis.",
+    "publico": "Hóspedes, que se cadastram, reservam, alteram, cancelam e pagam; e a administração do hotel, que mantém quartos e tipos de quarto no banco.",
+    "licao": "Código acadêmico real, de 2020, sem nenhum teste automatizado: tudo o que existe de teste neste projeto foi escrito por nós."
+  },
+  "adequacao": [
+    ["Software de terceiros", "Autoria de Crystal Wang, publicado no GitHub; não foi desenvolvido pelo aluno."],
+    ["Propósito real", "Gestão de reservas de um hotel, com usuários, quartos, reservas e pagamentos — não é uma estrutura de dados isolada."],
+    ["Complexidade razoável", "Banco relacional com 6 tabelas e chaves estrangeiras, sessão de login, regras de datas, capacidade e custo; a função reserve tem complexidade ciclomática 25."],
+    ["Tamanho que permite ir até o fim", "Cerca de 350 linhas de código: dá para chegar a 100% de cobertura de desvios e rodar a mutação sem amostragem."]
+  ],
+  "tecnologias": [
+    ["Python", "linguagem"],
+    ["Flask 0.12", "rotas e sessões (views.py)"],
+    ["Flask-SQLAlchemy 2.1", "modelos ORM (models.py)"],
+    ["SQLite", "banco relacional"],
+    ["WTForms / Flask-WTF", "formulários (forms.py)"],
+    ["Jinja2 + Bootstrap", "telas HTML"]
+  ],
+  "tabelas": [
+    ["user", "usuários (hóspedes)"],
+    ["room_type", "tipos de quarto"],
+    ["rooms", "quartos: número, preço por noite, capacidade"],
+    ["reservations", "reservas: entrada, saída, hóspedes, custo"],
+    ["booked", "quartos de cada reserva"],
+    ["payment", "pagamento da reserva"]
+  ],
+  "funcionalidades": [
+    ["RF-01", "Cadastrar usuário", "/signup", "documentado", ""],
+    ["RF-02", "Entrar e sair (sessão)", "/signin, /logout", "pré-condição", "a sessão é uma das condições de entrada da reserva"],
+    ["RF-03", "Listar quartos e tipos", "/rooms", "documentado", "destino da reserva aceita"],
+    ["RF-04", "Consultar disponibilidade", "/available", "complementar", "testes extras fora das métricas"],
+    ["RF-05", "Reservar um ou mais quartos", "/reserve", "recorte", "REQ-01, REQ-02 e REQ-03"],
+    ["RF-06", "Minha conta (reservas e custos)", "/about_user", "documentado", ""],
+    ["RF-07", "Alterar reserva", "/update/<rid>", "documentado", "reaproveita as regras da reserva"],
+    ["RF-08", "Cancelar reserva", "/delete/<rid>", "complementar", "testes extras fora das métricas"],
+    ["RF-09", "Registrar pagamento", "/payment/<rid>", "documentado", ""]
+  ],
+  "etapas": [
+    ["Funcional", "Classes de equivalência + análise do valor limite, a partir da especificação", "pytest"],
+    ["Estrutural", "Reaproveita os casos funcionais e mede comandos e desvios até a meta", "coverage.py"],
+    ["Baseado em defeitos", "Teste de mutação sobre o conjunto final, ampliando casos para matar sobreviventes", "Cosmic Ray"]
+  ],
+  "original": [
+    ["app.py", "ponto de entrada: sobe o servidor Flask"],
+    ["hotel/", "views.py (rotas e regras), models.py, forms.py e 10 templates HTML"],
+    ["Image/ER.png", "diagrama entidade-relacionamento"],
+    ["requirements.txt", "dependências de 2020 (Flask 0.12, Flask-SQLAlchemy 2.1)"]
+  ],
+  "fork": [
+    ["tests/", "os 15 casos (CT-001 a CT-015) em pytest, separados por etapa, e os complementares"],
+    ["evidencias/", "saída do pytest, JUnit, cobertura e mutação de cada etapa"],
+    ["docs/", "relatório técnico (PDF) e apresentação de 2 slides"],
+    ["hotel/", "código corrigido; o original fica na tag sut-original"]
+  ],
+  "telas": [
+    ["original-03-quartos.png", "Lista de quartos depois do login"],
+    ["original-06-reserva-formulario.png", "Formulário de reserva: entrada, saída, hóspedes e quartos", [0, 0, 1280, 300]],
+    ["corrigida-08-minha-conta.png", "\"My Account\": reservas, custo total e ações"]
+  ]
+}

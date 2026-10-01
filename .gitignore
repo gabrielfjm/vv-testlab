@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.vite/
+tmp/
+*.log
+.vvtestlab/
+.coverage
+.pytest_cache/
+__pycache__/
+.chart-data-*/
+
+# O hotel testado tem repositório próprio (github.com/gabrielfjm/Hotel_Management_System)
+output/hotel-management-testado/
+output/arquivo-analise-anterior/
+output/*.zip
+DESCRIÇÃO DO Projeto Técnico*.pdf
