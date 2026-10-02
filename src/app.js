@@ -1191,11 +1191,15 @@ function casesPage() {
 
 function caseTable() {
   if (!state.testCases.length) return emptyState("Nenhum caso de teste", "Cadastre manualmente ou use o gerador por limites.");
-  return `<table><thead><tr><th>ID do caso</th><th>Condição de entrada</th><th>Classe referida / cenário</th><th>Cenário válido</th><th>Cenários inválidos</th><th>Esperado</th><th></th></tr></thead><tbody>
+  const techniqueName = { CE: "Classe de equivalência", AVL: "Valor limite", Estrutural: "Estrutural", "Mutação": "Mutação" };
+  return `<table class="click-table"><thead><tr><th>ID do caso</th><th>Condição de entrada</th><th>Classe referida / cenário</th><th>Técnica e por quê</th><th>Cenário válido</th><th>Cenários inválidos</th><th>Esperado</th><th></th></tr></thead><tbody>
     ${state.testCases.map((tc) => {
       const cls = state.classes.find((x) => x.id === tc.classId);
       const req = state.requirements.find((x) => x.id === tc.requirementId);
-      return `<tr class="filter-item" data-query="${e(`${tc.id} ${tc.input} ${tc.title} ${cls?.name || ""} ${req?.title || ""}`.toLowerCase())}" data-validity="${e(tc.validity)}" data-technique="${e(tc.technique)}" data-requirement="${e(tc.requirementId)}"><td class="id-cell">${e(tc.id)}</td><td class="main-cell">${e(tc.input)}<div class="sub-cell">${e(tc.precondition)}</div></td><td><strong>${e(cls?.name || "Sem classe")}</strong><div class="sub-cell">${e(cls?.condition || "—")} · ${e(req?.id || "—")}</div></td><td>${tc.validity === "Válido" ? `<strong>${e(tc.title)}</strong><div class="sub-cell">${e(tc.steps.join(" → "))}</div>` : "—"}</td><td>${tc.validity === "Inválido" ? `<strong>${e(tc.title)}</strong><div class="sub-cell">${e(tc.steps.join(" → "))}</div>` : "—"}</td><td>${e(tc.expected)}<div class="sub-cell"><span class="tag">${e(tc.technique)}</span></div></td><td class="actions-cell"><button class="icon-btn" title="Editar" data-action="edit-case" data-id="${tc.id}">${icon("edit")}</button></td></tr>`;
+      // O "por que este teste existe" do estudo explica a técnica: o limite usado (AVL) ou a classe testada (CE).
+      const why = findTest(tc.id)?.explanation?.porque || "";
+      const opens = findTest(tc.id) ? `data-action="open-test" data-id="${e(tc.id)}"` : "";
+      return `<tr class="filter-item ${opens ? "clickable" : ""}" ${opens} data-query="${e(`${tc.id} ${tc.input} ${tc.title} ${cls?.name || ""} ${req?.title || ""} ${why}`.toLowerCase())}" data-validity="${e(tc.validity)}" data-technique="${e(tc.technique)}" data-requirement="${e(tc.requirementId)}"><td class="id-cell">${e(tc.id)}</td><td class="main-cell">${e(tc.input)}<div class="sub-cell">${e(tc.precondition)}</div></td><td><strong>${e(cls?.name || "Sem classe")}</strong><div class="sub-cell">${e(cls?.condition || "—")} · ${e(req?.id || "—")}</div></td><td class="why-cell"><span class="tech-badge tech-${e(tc.technique)}">${e(techniqueName[tc.technique] || tc.technique)}</span>${why ? `<div class="sub-cell">${e(why)}</div>` : ""}</td><td>${tc.validity === "Válido" ? `<strong>${e(tc.title)}</strong><div class="sub-cell">${e(tc.steps.join(" → "))}</div>` : "—"}</td><td>${tc.validity === "Inválido" ? `<strong>${e(tc.title)}</strong><div class="sub-cell">${e(tc.steps.join(" → "))}</div>` : "—"}</td><td>${e(tc.expected)}</td><td class="actions-cell"><button class="icon-btn" title="Editar" data-action="edit-case" data-id="${tc.id}">${icon("edit")}</button></td></tr>`;
     }).join("")}
   </tbody></table>`;
 }

@@ -730,6 +730,13 @@ body.node-drawer-detail .modal-backdrop { padding-right: calc(min(540px, 94vw) +
   .about-cards, .guide-grid { grid-template-columns: 1fr; }
 }
 
+/* Cenários e casos: técnica de cada caso e o motivo */
+.why-cell { min-width: 230px; max-width: 320px; }
+.tech-badge { display: inline-flex; padding: 3px 8px; border-radius: 99px; font-size: 9.5px; font-weight: 800; white-space: nowrap; }
+.tech-CE { color: #5946d4; background: #eeebff; }
+.tech-AVL { color: #a66a22; background: #fff3df; }
+.why-cell .sub-cell { margin-top: 6px; line-height: 1.5; }
+
 /* Quadro das classes de equivalência (Teste funcional) */
 .ce-board { margin-bottom: 18px; }
 .txt-ok { color: var(--green); }

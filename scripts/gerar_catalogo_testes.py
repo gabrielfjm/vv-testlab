@@ -462,6 +462,10 @@ def main():
                                     if m["killedBy"] == teste["id"] and m["initial"] == "Sobrevivente"]
     # Resultado de cada execução em linguagem simples (a ponte grava o texto técnico do pytest).
     por_id = {t["id"]: t for t in testes}
+    # Títulos dos casos cadastrados iguais aos do catálogo (com acentos), para todas as páginas mostrarem o mesmo texto.
+    for caso in estado["testCases"]:
+        if caso["id"] in por_id:
+            caso["title"] = por_id[caso["id"]]["title"]
     for execucao in estado["executions"]:
         teste = por_id.get(execucao["testCaseId"])
         if not teste:

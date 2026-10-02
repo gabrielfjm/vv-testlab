@@ -289,7 +289,7 @@
         "CE-11",
         "CE-05"
       ],
-      "title": "Reserva de dois quartos com lotacao maxima é aceita",
+      "title": "Reserva de dois quartos com lotação máxima é aceita",
       "input": "Quartos 101 e 102 juntos para 5 hóspedes (a capacidade somada), de 10/03/2030 a 13/03/2030",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -315,7 +315,7 @@
         "CE-17",
         "CE-21"
       ],
-      "title": "Estadia que comeca quando outra termina é aceita",
+      "title": "Estadia que começa quando outra termina é aceita",
       "input": "Quarto 101 ocupado de 10/03/2030 a 12/03/2030; nova reserva de 12/03/2030 a 14/03/2030 (entra no dia em que a outra sai)",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -388,7 +388,7 @@
       "classIds": [
         "CE-04"
       ],
-      "title": "Quarto escrito em texto e recusado",
+      "title": "Quarto escrito em texto é recusado",
       "input": "Campo de quartos preenchido com \"abc\"",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -412,7 +412,7 @@
       "classIds": [
         "CE-06"
       ],
-      "title": "Quarto que não existe e recusado",
+      "title": "Quarto que não existe é recusado",
       "input": "Quartos 101 e 999 (o 999 não existe) para 2 hóspedes",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -436,7 +436,7 @@
       "classIds": [
         "CE-08"
       ],
-      "title": "Quarto repetido e recusado",
+      "title": "Quarto repetido é recusado",
       "input": "Quarto 101 repetido (\"101,101\") para 2 hóspedes",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -460,7 +460,7 @@
       "classIds": [
         "CE-12"
       ],
-      "title": "Reserva sem hóspedes e recusada",
+      "title": "Reserva sem hóspedes é recusada",
       "input": "Reserva para 0 hóspedes",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -533,7 +533,7 @@
         "CE-16",
         "CE-15"
       ],
-      "title": "Quarto ocupado no período e recusado",
+      "title": "Quarto ocupado no período é recusado",
       "input": "Quarto 101 ocupado de 10/03/2030 a 12/03/2030; nova reserva de 11/03/2030 a 13/03/2030 (a noite de 11/03 em comum)",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -557,7 +557,7 @@
       "classIds": [
         "CE-18"
       ],
-      "title": "Entrada no passado e recusada",
+      "title": "Entrada no passado é recusada",
       "input": "Entrada ontem",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -581,7 +581,7 @@
       "classIds": [
         "CE-20"
       ],
-      "title": "Data em formato errado e recusada",
+      "title": "Data em formato errado é recusada",
       "input": "Data de entrada \"2030-13-01\" (formato errado e mês 13)",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -605,7 +605,7 @@
       "classIds": [
         "CE-22"
       ],
-      "title": "Saída igual à entrada e recusada",
+      "title": "Saída igual à entrada é recusada",
       "input": "Saída no mesmo dia da entrada: 10/03/2030 a 10/03/2030 (0 noites)",
       "precondition": "Base de teste: quartos 101, 102 e 301 e usuários Ana e Bruno.",
       "steps": [
@@ -11736,5 +11736,5 @@
       }
     }
   },
-  "studyVersion": "b203db187004"
+  "studyVersion": "81a326cd852e"
 }
