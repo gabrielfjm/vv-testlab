@@ -71,6 +71,11 @@ test("teste funcional: filtro, código, assertivas e tabela de resultados", () =
   click(document.querySelector('[data-route="funcional"]'));
   expect(document.querySelector(".how-panel summary").textContent).toContain("Como a etapa funcional foi feita");
   expect(visible("#funcional-list .filter-item")).toHaveLength(15);
+  // Quadro das classes de equivalência: todas as 22 classes, cada uma com pelo menos um caso.
+  const board = document.querySelector(".ce-board");
+  expect(board.querySelectorAll(".ce-chip")).toHaveLength(22);
+  expect([...board.querySelectorAll(".ce-chip")].every((item) => item.querySelector(".ce-case"))).toBe(true);
+  expect([...board.querySelectorAll(".ce-point span")].map((item) => item.textContent)).toEqual(["CT-009", "CT-001", "CT-002", "CT-010", "CT-011"]);
   expect(document.querySelector('#funcional-list [data-id="CT-009"]').textContent).toContain("Reserva aceita com 0 hóspedes");
   const original = document.querySelector('[data-filter-controls="funcional-list"] [data-filter-key="original"]');
   original.value = "Falhou";

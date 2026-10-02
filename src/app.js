@@ -601,8 +601,58 @@ function stagePage(stage) {
   const tests = stageTests(stage);
   return `${pageHead(info.eyebrow, info.label, subtitle)}
     ${stage === "mutacao" ? mutationOverview() : stageOverview(stage)}
+    ${stage === "funcional" ? equivalenceBoard() : ""}
     ${stageGuide(stage)}
     ${stage === "mutacao" ? mutationListing(tests) : testListing(stage, tests)}`;
+}
+
+/** Quadro das classes de equivalência: o conceito, um exemplo na reta (hóspedes) e todas as classes com seus casos. */
+function equivalenceBoard() {
+  const classes = state.classes;
+  if (!classes.length) return "";
+  const tests = stageTests("funcional");
+  const casesOf = (classId) => tests.filter((test) => (test.classes || []).includes(classId)).map((test) => test.id);
+  const caseButton = (id) => `<button class="ce-case" data-action="open-test" data-id="${e(id)}" title="${e(findTest(id)?.title || "")}">${e(id)}</button>`;
+  const chip = (cls) => `<div class="ce-chip ${cls.type === "Válida" ? "ok" : "bad"}"><span class="ce-id">${e(cls.id)}</span><span class="ce-name">${e(cls.name)}</span><span class="ce-cases">${casesOf(cls.id).map(caseButton).join("") || "—"}</span></div>`;
+  const conditions = [...new Map(classes.map((cls) => [`${cls.requirementId}|${cls.condition}`, { req: cls.requirementId, condition: cls.condition }])).values()];
+  const valid = classes.filter((cls) => cls.type === "Válida").length;
+  const name = (id) => classes.find((cls) => cls.id === id)?.name || "";
+  // Exemplo: número de hóspedes com os quartos 101 (2 pessoas) e 102 (3 pessoas): capacidade somada = 5.
+  const example = ["CE-11", "CE-12", "CE-13", "CE-14"].every((id) => classes.some((cls) => cls.id === id)) ? `
+    <div class="ce-example">
+      <div class="ce-example-head"><strong>Exemplo: o número de hóspedes</strong><span>Reserva dos quartos 101 (cabem 2) e 102 (cabem 3): no total cabem <b>5</b> pessoas.</span></div>
+      <div class="ce-line">
+        <div class="seg bad"><span class="seg-id">CE-12 · inválida</span><span class="seg-name">${e(name("CE-12"))}</span><span class="seg-vals">…, −1, 0</span></div>
+        <div class="seg ok wide"><span class="seg-id">CE-11 · válida</span><span class="seg-name">de 1 até 5</span><span class="seg-vals">1 · 2 · 3 · 4 · 5</span></div>
+        <div class="seg bad"><span class="seg-id">CE-13 · inválida</span><span class="seg-name">${e(name("CE-13"))}</span><span class="seg-vals">6, 7, …</span></div>
+        <div class="seg bad text"><span class="seg-id">CE-14 · inválida</span><span class="seg-name">${e(name("CE-14"))}</span><span class="seg-vals">"dois"</span></div>
+      </div>
+      <div class="ce-points">
+        ${[["0", "CT-009", "recusar", "bad"], ["1", "CT-001", "aceitar", "ok"], ["5", "CT-002", "aceitar", "ok"], ["6", "CT-010", "recusar", "bad"], ["\"dois\"", "CT-011", "recusar", "bad"]].map(([value, id, result, kind]) => `<button class="ce-point ${kind}" data-action="open-test" data-id="${id}"><strong>${value}</strong><span>${id}</span><small>deve ${result}</small></button>`).join("")}
+      </div>
+      <p class="ce-example-note">Testar 2 ou 3 hóspedes daria o mesmo resultado: os dois estão na mesma classe. Por isso basta <b>um valor de cada classe</b>, e os valores escolhidos ficam <b>nas bordas</b> (0 e 1, 5 e 6), onde os erros costumam aparecer. Foi assim que o CT-009 revelou o DEF-03: o sistema aceitava 0 hóspedes.</p>
+    </div>` : "";
+  return `<section class="panel ce-board">
+    <div class="panel-head"><div><h2 class="panel-title">Classes de equivalência: como os casos foram pensados</h2><div class="panel-subtitle">${classes.length} classes (${valid} válidas e ${classes.length - valid} inválidas) em ${conditions.length} condições de entrada, cobertas por ${tests.length} casos</div></div></div>
+    <div class="panel-body">
+      <div class="ce-concepts">
+        <div><span class="ce-step">1</span><strong>O que é uma classe</strong><p>Um grupo de valores de entrada que o sistema deve tratar <b>do mesmo jeito</b>. Se um valor do grupo funciona, os outros também deveriam.</p></div>
+        <div><span class="ce-step">2</span><strong>Válida ou inválida</strong><p><b class="txt-ok">Válida</b>: o sistema deve aceitar. <b class="txt-red">Inválida</b>: o sistema deve recusar com mensagem, sem gravar nada.</p></div>
+        <div><span class="ce-step">3</span><strong>Como viram casos</strong><p>Um caso válido cobre várias classes válidas de uma vez (o CT-001 cobre 10). Cada classe inválida tem <b>um caso só dela</b>, com todo o resto válido: assim a recusa tem um único motivo.</p></div>
+        <div><span class="ce-step">4</span><strong>E o valor limite?</strong><p>Complementa as classes: em vez de um valor qualquer, o caso usa o valor <b>na fronteira</b> entre duas classes, onde os erros costumam estar.</p></div>
+      </div>
+      ${example}
+      <details class="ce-all" open><summary>Todas as classes, por condição de entrada <small>clique em um caso para abrir</small></summary>
+        <div class="table-wrap"><table class="ce-table"><thead><tr><th>Requisito</th><th>Condição de entrada</th><th>Classes válidas</th><th>Classes inválidas</th></tr></thead><tbody>
+          ${conditions.map(({ req, condition }) => {
+            const group = classes.filter((cls) => cls.requirementId === req && cls.condition === condition);
+            const list = (type) => group.filter((cls) => cls.type === type).map(chip).join("") || `<span class="sub-cell">—</span>`;
+            return `<tr><td class="id-cell">${e(req)}<div class="sub-cell">${e(state.requirements.find((item) => item.id === req)?.title || "")}</div></td><td class="main-cell">${e(condition)}</td><td>${list("Válida")}</td><td>${list("Inválida")}</td></tr>`;
+          }).join("")}
+        </tbody></table></div>
+      </details>
+    </div>
+  </section>`;
 }
 
 /** Passo a passo de como a etapa foi conduzida (texto do catálogo do estudo). */
