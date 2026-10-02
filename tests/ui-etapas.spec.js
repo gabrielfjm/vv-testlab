@@ -51,6 +51,7 @@ test("a página final explica a ferramenta, a integração e cada item do menu",
   const thanks = document.querySelector(".content");
   expect(thanks.querySelector(".thanks-hero h1").textContent).toBe("Obrigado!");
   expect(thanks.querySelector(".thanks-numbers").textContent).toContain("95%");
+  expect([...thanks.querySelectorAll(".person-avatar img")].map((img) => img.getAttribute("src"))).toEqual(["creditos/leo-natan-paschoal.jpg", "creditos/gabriel-felipe-jess-meira.jpg"]);
   const links = [...thanks.querySelectorAll(".person-links a")].map((link) => link.getAttribute("href"));
   expect(links).toEqual(["http://lattes.cnpq.br/0701955386251459", "https://www.linkedin.com/in/leo-natan-paschoal/", "https://gabrielfjm.com.br", "https://www.linkedin.com/in/gabrielfjm/"]);
   expect([...thanks.querySelectorAll(".thanks-logos img")].map((img) => img.getAttribute("alt"))).toEqual(["Pontifícia Universidade Católica do Paraná", "Coordenação de Aperfeiçoamento de Pessoal de Nível Superior"]);

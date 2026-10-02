@@ -437,8 +437,8 @@ const MENU_GUIDE = [
 
 /** Pessoas do encerramento. O Lattes do professor é o link permanente da lista de docentes do PPGIa. */
 const CREDITS = [
-  { role: "Professor da disciplina", initials: "LP", name: "Prof. Dr. Leo Natan Paschoal", detail: "Verificação e Validação de Software · PPGIa · PUCPR", links: [["lattes", "Currículo Lattes", "http://lattes.cnpq.br/0701955386251459"], ["linkedin", "LinkedIn", "https://www.linkedin.com/in/leo-natan-paschoal/"]] },
-  { role: "Desenvolvido por", initials: "GM", name: "Gabriel Felipe Jess Meira", detail: "Mestrando · PUCPR · Bolsista CAPES", links: [["globe", "Currículo", "https://gabrielfjm.com.br"], ["linkedin", "LinkedIn", "https://www.linkedin.com/in/gabrielfjm/"]], author: true }
+  { role: "Professor da disciplina", initials: "LP", photo: "creditos/leo-natan-paschoal.jpg", name: "Prof. Dr. Leo Natan Paschoal", detail: "Verificação e Validação de Software · PPGIa · PUCPR", links: [["lattes", "Currículo Lattes", "http://lattes.cnpq.br/0701955386251459"], ["linkedin", "LinkedIn", "https://www.linkedin.com/in/leo-natan-paschoal/"]] },
+  { role: "Desenvolvido por", initials: "GM", photo: "creditos/gabriel-felipe-jess-meira.jpg", name: "Gabriel Felipe Jess Meira", detail: "Mestrando · PUCPR · Bolsista CAPES", links: [["globe", "Currículo", "https://gabrielfjm.com.br"], ["linkedin", "LinkedIn", "https://www.linkedin.com/in/gabrielfjm/"]], author: true }
 ];
 
 function thanksPage() {
@@ -458,7 +458,7 @@ function thanksPage() {
 
     <div class="thanks-people">${CREDITS.map((person) => `<section class="person-card ${person.author ? "author" : ""}">
       <span class="person-role">${person.role}</span>
-      <div class="person-main"><span class="person-avatar">${person.initials}</span><div><h2>${person.name}</h2><p>${person.detail}</p></div></div>
+      <div class="person-main"><span class="person-avatar">${person.initials}${person.photo ? `<img src="${person.photo}" alt="Foto de ${person.name}" onerror="this.remove()">` : ""}</span><div><h2>${person.name}</h2><p>${person.detail}</p></div></div>
       <div class="person-links">${person.links.map(([ico, label, url]) => extLink(url, `${icon(ico)}<span>${label}</span>`, "btn")).join("")}</div>
     </section>`).join("")}</div>
 

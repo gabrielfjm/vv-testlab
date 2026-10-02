@@ -803,6 +803,9 @@ body.node-drawer-detail .modal-backdrop { padding-right: calc(min(540px, 94vw) +
 .person-role { color: var(--primary); font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
 .person-main { display: flex; align-items: center; gap: 16px; }
 .person-avatar { flex: 0 0 auto; width: 64px; height: 64px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(145deg, #1f9d8a, #11182b); font: 800 21px/1 "Manrope", sans-serif; letter-spacing: -.5px; box-shadow: 0 10px 24px rgba(17,24,43,.25); }
+.person-avatar { position: relative; overflow: hidden; width: 76px; height: 76px; border: 3px solid #fff; outline: 2px solid #d5dbe6; }
+.author .person-avatar { outline-color: #b9b0fa; }
+.person-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .author .person-avatar { background: linear-gradient(145deg, #8e80ff, #5847d3); box-shadow: 0 10px 24px rgba(103,86,232,.35); }
 .person-main h2 { margin: 0; font-size: 20px; letter-spacing: -.4px; }
 .person-main p { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; }
