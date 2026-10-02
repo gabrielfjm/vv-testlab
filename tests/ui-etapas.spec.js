@@ -22,6 +22,9 @@ test("abre na caracterização do projeto, com links e métricas, e segue para a
   const links = [...content.querySelectorAll("a[href]")].map((link) => link.getAttribute("href"));
   expect(links).toContain("https://github.com/CrystalWang1225/Hotel_Management_System");
   expect(links).toContain("https://github.com/gabrielfjm/Hotel_Management_System");
+  expect([...content.querySelectorAll(".inst-band img")].map((img) => img.getAttribute("src"))).toEqual(["instituicoes/pucpr.svg", "instituicoes/capes.png"]);
+  expect(content.querySelector(".inst-ack").textContent).toContain("Código de Financiamento 001");
+  expect(document.querySelectorAll(".sidebar-inst img")).toHaveLength(2);
   const text = content.textContent;
   for (const metric of ["428", "354 de código", "Módulos", "12", "13 funções + 6 métodos"]) expect(text).toContain(metric);
   expect(content.querySelectorAll("table tbody tr")).toHaveLength(9);

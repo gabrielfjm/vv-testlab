@@ -139,6 +139,12 @@ const navGroups = [
   ]]
 ];
 
+/** Vínculo do trabalho: o mestrado na PUCPR e a bolsa da CAPES (logos em public/instituicoes/). */
+const INSTITUTIONS = [
+  { key: "pucpr", short: "PUCPR", name: "Pontifícia Universidade Católica do Paraná", url: "https://www.pucpr.br", color: "instituicoes/pucpr.svg", white: "instituicoes/pucpr-branca.svg" },
+  { key: "capes", short: "CAPES", name: "Coordenação de Aperfeiçoamento de Pessoal de Nível Superior", url: "https://www.gov.br/capes", color: "instituicoes/capes.png", white: "instituicoes/capes-branca.png" }
+];
+
 function navCount(key) {
   return ({ funcional: stageTests("funcional").length, estrutural: stageTests("estrutural").length, mutacao: stageTests("mutacao").length, requirements: state.requirements.length, cases: state.testCases.length, structural: state.controlFlowGraphs.length, integration: state.syncHistory.length + state.mutationHistory.length, defects: state.defects.filter((x) => x.status !== "Fechado").length })[key];
 }
@@ -151,7 +157,9 @@ function shell(content) {
       <nav class="nav-list" aria-label="Navegação principal">
         ${navGroups.map(([group, items]) => `<div class="nav-label">${group}</div>${items.map(([key, ico, label]) => `<button class="nav-item ${route === key ? "active" : ""}" data-route="${key}">${icon(ico)}<span>${label}</span>${navCount(key) !== undefined ? `<span class="nav-badge">${navCount(key)}</span>` : ""}</button>`).join("")}`).join("")}
       </nav>
-      <div class="sidebar-footer"><div class="phase-label">Etapa atual</div><div class="phase-value"><span class="phase-dot"></span>${e(currentPhase)}</div></div>
+      <div class="sidebar-footer"><div class="phase-label">Etapa atual</div><div class="phase-value"><span class="phase-dot"></span>${e(currentPhase)}</div>
+        <div class="sidebar-inst"><div class="phase-label">Mestrado PUCPR · bolsa CAPES</div><div class="inst-logos">${INSTITUTIONS.map((inst) => `<a href="${inst.url}" target="_blank" rel="noopener noreferrer" title="${inst.name}"><img src="${inst.white}" alt="${inst.short}" class="inst-${inst.key}"></a>`).join('<span class="inst-sep"></span>')}</div></div>
+      </div>
     </aside>
     <main class="workspace">
       <header class="topbar"><div><div class="project-kicker">Projeto ativo</div><div class="project-title">${e(state.project.name)}</div></div>
@@ -321,6 +329,11 @@ function homePage() {
       </div>
       <div class="hero-visual">${browserShot(c.telas[0][0], c.telas[0][1])}</div>
     </section>
+    ${c.instituicional ? `<section class="inst-band" aria-label="Vínculo institucional">
+      <div class="inst-text"><span class="inst-kicker">Vínculo institucional</span><strong>${e(c.instituicional.curso)}</strong><p>${e(c.instituicional.texto)}</p></div>
+      <div class="inst-band-logos">${INSTITUTIONS.map((inst) => `<a href="${inst.url}" target="_blank" rel="noopener noreferrer" title="${inst.name}"><img src="${inst.color}" alt="${inst.name}" class="inst-${inst.key}"></a>`).join('<span class="inst-sep"></span>')}</div>
+      <p class="inst-ack">${e(c.instituicional.agradecimento)}</p>
+    </section>` : ""}
 
     ${homeSection(1, "Contexto de desenvolvimento", "De onde vem o sistema e por que ele serve para o trabalho.")}
     <div class="grid-equal home-grid">

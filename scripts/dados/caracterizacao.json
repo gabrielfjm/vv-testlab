@@ -1,6 +1,11 @@
 {
   "nome": "Hotel Management System",
   "resumo": "Sistema web de gestão hoteleira escrito em Python com Flask. O hóspede cria uma conta, entra no sistema, consulta quais quartos estão livres em um período, reserva um ou mais quartos (o sistema calcula o custo pelas diárias), acompanha as reservas em \"My Account\", altera, cancela e registra o pagamento. É o software de terceiros sobre o qual aplicamos as três técnicas de teste.",
+  "instituicional": {
+    "curso": "Mestrado · Pontifícia Universidade Católica do Paraná",
+    "texto": "Trabalho da disciplina Verificação e Validação de Software, desenvolvido por Gabriel Felipe Jess Meira, bolsista CAPES.",
+    "agradecimento": "O presente trabalho foi realizado com apoio da Coordenação de Aperfeiçoamento de Pessoal de Nível Superior – Brasil (CAPES) – Código de Financiamento 001."
+  },
   "links": {
     "original": "https://github.com/CrystalWang1225/Hotel_Management_System",
     "fork": "https://github.com/gabrielfjm/Hotel_Management_System"
