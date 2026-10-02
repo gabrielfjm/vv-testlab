@@ -50,7 +50,7 @@ test("a página final explica a ferramenta, a integração e cada item do menu",
   click(content.querySelector('.presenter-btn.next[data-route="obrigado"]'));
   const thanks = document.querySelector(".content");
   expect(thanks.querySelector(".thanks-hero h1").textContent).toBe("Obrigado!");
-  expect(thanks.querySelector(".thanks-numbers").textContent).toContain("95%");
+  expect(thanks.querySelector(".thanks-numbers").textContent).toContain("100,0%");
   expect([...thanks.querySelectorAll(".person-avatar img")].map((img) => img.getAttribute("src"))).toEqual(["creditos/leo-natan-paschoal.jpg", "creditos/gabriel-felipe-jess-meira.jpg"]);
   const links = [...thanks.querySelectorAll(".person-links a")].map((link) => link.getAttribute("href"));
   expect(links).toEqual(["http://lattes.cnpq.br/0701955386251459", "https://www.linkedin.com/in/leo-natan-paschoal/", "https://gabrielfjm.com.br", "https://www.linkedin.com/in/gabrielfjm/"]);
@@ -63,7 +63,10 @@ test("a página final explica a ferramenta, a integração e cada item do menu",
 test("a visão geral resume as três etapas", () => {
   const text = document.querySelector(".content").textContent;
   expect(text).toContain("os mesmos casos nas 3 etapas");
-  expect(text).toContain("95%");
+  // Escore pela fórmula da disciplina (equivalentes fora do denominador) e o bruto ao lado.
+  expect(text).toContain("100,0%");
+  expect(text).toContain("bruto 95,0%");
+  expect(text).toContain("94,8% → 100,0%");
   expect(document.querySelectorAll(".stage-card")).toHaveLength(3);
 });
 
@@ -121,6 +124,13 @@ test("defeitos: linha do tempo e detalhe com onde acontecia e quando foi corrigi
 test("teste estrutural: detalhe mostra o grafo coberto pelo caso", () => {
   click(document.querySelector('[data-route="estrutural"]'));
   expect(visible("#estrutural-list .filter-item")).toHaveLength(5);
+  // Lacunas de cobertura: 3 fechadas por ampliações e 1 inviável, cada uma com o trecho do código.
+  const gaps = document.querySelector(".gaps-panel");
+  expect(gaps.querySelectorAll(".gap-card")).toHaveLength(4);
+  expect(gaps.querySelectorAll(".gap-card.infeasible")).toHaveLength(1);
+  expect(gaps.textContent).toContain("desvio 230→229");
+  expect(gaps.textContent).toContain("60/63 → 63/63");
+  expect(gaps.querySelectorAll(".gap-code .code-view").length).toBeGreaterThanOrEqual(4);
   click(document.querySelector('#estrutural-list [data-id="CT-012"]'));
   expect(document.querySelector(".modal-wide .amp-card").textContent).toContain("DEF-15");
   const modal = document.querySelector(".modal-wide");

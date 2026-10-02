@@ -353,7 +353,13 @@ function homePage() {
         <div class="panel-body check-list">${c.adequacao.map(([title, text]) => `<div class="check-item">${icon("shield")}<div><strong>${e(title)}</strong><p>${e(text)}</p></div></div>`).join("")}</div></section>
     </div>
 
-    ${homeSection(2, "Funcionalidades", "Os nove requisitos funcionais do sistema e o papel de cada um no estudo.")}
+    ${homeSection(2, "Funcionalidades", "Os nove requisitos funcionais do sistema e o papel de cada um no estudo. A coluna \"No estudo\" responde: o que o trabalho fez com esta funcionalidade?")}
+    <div class="status-legend">
+      <div><span class="badge badge-purple">recorte</span><p><b>Testada a fundo</b> nas 3 etapas (funcional, estrutural e mutação). É a reserva, de onde saíram REQ-01, REQ-02 e REQ-03.</p></div>
+      <div><span class="badge badge-green">pré-condição</span><p><b>Não testada sozinha</b>, mas faz parte da reserva: estar logado ou não é uma das entradas testadas.</p></div>
+      <div><span class="badge badge-amber">complementar</span><p><b>Testes extras</b> fora das métricas de cobertura e mutação. Também acharam defeitos, documentados no relatório.</p></div>
+      <div><span class="badge badge-gray">documentado</span><p><b>Só descrita</b> no relatório, sem testes: não tem regra a verificar além de gravar dados, ou repete regras da reserva.</p></div>
+    </div>
     <section class="panel panel-flush"><div class="table-wrap"><table><thead><tr><th>RF</th><th>Funcionalidade</th><th>Rota</th><th>No estudo</th></tr></thead><tbody>
       ${c.funcionalidades.map(([id, name, path, status, note]) => `<tr class="${status === "recorte" ? "rf-scope" : ""}"><td class="id-cell">${e(id)}</td><td class="main-cell">${e(name)}</td><td class="mono">${e(path)}</td><td><span class="badge badge-${statusClass[status] || "gray"}">${e(status)}</span>${note ? `<div class="sub-cell">${e(note)}</div>` : ""}</td></tr>`).join("")}
     </tbody></table></div></section>
@@ -447,7 +453,7 @@ function thanksPage() {
   const finalRun = mutationData().runs.at(-1);
   const cases = new Set(Object.keys(STAGES).flatMap((stage) => stageTests(stage).map((test) => test.id))).size;
   const c = state.testCatalog?.characterization;
-  const numbers = [[cases, "casos de teste", "os mesmos nas 3 etapas"], [state.defects.length, "defeitos corrigidos", "encontrados pelos testes"], [pct(last.branches), "dos desvios", "cobertura estrutural"], [pct(finalRun?.score), "escore de mutação", `${finalRun?.killed || 0} de ${finalRun?.total || 0} mutantes`]];
+  const numbers = [[cases, "casos de teste", "os mesmos nas 3 etapas"], [state.defects.length, "defeitos corrigidos", "encontrados pelos testes"], [pct(last.branches), "dos desvios", "cobertura estrutural"], [pct1(mutationScores().final?.adjusted), "escore de mutação", `${finalRun?.killed || 0} ÷ (${finalRun?.total || 0} − ${mutationScores().equivalent} equivalentes)`]];
   return `<section class="thanks-hero">
       <div class="thanks-glow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="hero-eyebrow">Encerramento · Verificação e Validação de Software</div>
@@ -553,6 +559,24 @@ function aboutPage() {
       <div class="about-links">${extLink("https://github.com/gabrielfjm/vv-testlab", `${icon("github")}<span>Código da ferramenta</span>`)}${extLink("https://github.com/gabrielfjm/Hotel_Management_System", `${icon("fork")}<span>Fork com os testes</span>`)}</div></div></section>`;
 }
 
+const pct1 = (value) => `${Number(value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+
+/**
+ * Escore de mutação pela fórmula da disciplina: mortos ÷ (gerados − equivalentes) × 100.
+ * Os equivalentes são uma propriedade do mutante, então valem para as duas rodadas.
+ * O "bruto" (mortos ÷ gerados) é o que o Cosmic Ray informa.
+ */
+function mutationScores() {
+  const mutation = mutationData();
+  const equivalent = Number(mutation.equivalent || 0);
+  const score = (run) => run ? {
+    killed: run.killed, total: run.total, equivalent,
+    adjusted: run.total - equivalent > 0 ? Math.round((run.killed / (run.total - equivalent)) * 1000) / 10 : 0,
+    raw: Math.round((run.killed / run.total) * 1000) / 10
+  } : null;
+  return { equivalent, initial: score(mutation.runs[0]), final: score(mutation.runs.at(-1)) };
+}
+
 function dashboardPage() {
   const stats = Object.fromEntries(Object.keys(STAGES).map((stage) => [stage, stageStats(stage)]));
   const total = Object.values(stats).reduce((sum, item) => sum + item.total, 0);
@@ -561,6 +585,7 @@ function dashboardPage() {
   const structural = evolution.find((item) => /estrutural/i.test(item.stage)) || {};
   const last = evolution.at(-1) || {};
   const mutation = mutationData();
+  const scores = mutationScores();
   const initialRun = mutation.runs[0];
   const finalRun = mutation.runs.at(-1);
   const closed = state.defects.filter((item) => item.status === "Fechado").length;
@@ -572,12 +597,12 @@ function dashboardPage() {
       ${metricCard("Casos de teste", uniqueCases, ampCount ? `os mesmos casos nas 3 etapas · ${ampCount} ampliações` : `${stats.funcional.total} funcionais · ${stats.estrutural.total} estruturais · ${stats.mutacao.total} de mutação`, "cases", "#6756e8", "#efedff")}
       ${metricCard("Defeitos encontrados", state.defects.length, `${closed} corrigidos antes da mutação`, "bug", "#d95555", "#fdecec")}
       ${metricCard("Cobertura final", pct(last.statements), `comandos · ${pct(last.branches)} dos desvios`, "chart", "#1f9d8a", "#e6f7f3")}
-      ${metricCard("Escore de mutação", pct(finalRun?.score), mutation.equivalent ? `${pct(mutation.adjustedScore)} sem os ${mutation.equivalent} equivalentes` : `${finalRun?.killed || 0}/${finalRun?.total || 0} mortos`, "shield", "#df8b2d", "#fff3df")}
+      ${metricCard("Escore de mutação", pct1(scores.final?.adjusted), scores.final ? `${scores.final.killed} ÷ (${scores.final.total} − ${scores.equivalent} equivalentes) · bruto ${pct1(scores.final.raw)}` : "—", "shield", "#df8b2d", "#fff3df")}
     </div>
     <div class="stage-cards">
       ${stageCard("funcional", [["Casos", `${stats.funcional.total} (${stats.funcional.tests.filter((t) => t.technique === "CE").length} CE · ${stats.funcional.tests.filter((t) => t.technique === "AVL").length} AVL)`], ["No código original", `${stats.funcional.originalPassed} passaram · <b class="txt-red">${stats.funcional.originalFailed} falharam</b>`], ["Defeitos revelados", stats.funcional.revealed.length], ["Cobertura", `${pct(first.statements)} comandos · ${pct(first.branches)} desvios`]])}
       ${stageCard("estrutural", [[ampCount ? "Casos reaproveitados" : "Casos acrescentados", ampCount ? `${stats.estrutural.total} (${stats.estrutural.amplified.length} ampliados)` : `+${stats.estrutural.total}`], ["Cobertura", `${pct(structural.statements)} comandos · ${pct(structural.branches)} desvios`], ["Defeitos novos", stats.estrutural.revealed.length ? stats.estrutural.revealed.join(", ") : "0"], ["Grafos de fluxo", `${state.controlFlowGraphs.length} funções analisadas`]])}
-      ${stageCard("mutacao", [[ampCount ? "Casos" : "Casos acrescentados", ampCount ? `os mesmos ${stats.mutacao.total} (${stats.mutacao.amplified.length} ampliados)` : `+${stats.mutacao.total}`], ["Mutantes", `${finalRun?.total || 0} gerados (${mutation.tool})`], ["Escore", initialRun && finalRun && initialRun !== finalRun ? `${pct(initialRun.score)} → <b>${pct(finalRun.score)}</b>` : pct(finalRun?.score)], ["Sobreviventes", `${finalRun?.survived || 0}${mutation.equivalent ? " (todos equivalentes)" : ""}`]])}
+      ${stageCard("mutacao", [[ampCount ? "Casos" : "Casos acrescentados", ampCount ? `os mesmos ${stats.mutacao.total} (${stats.mutacao.amplified.length} ampliados)` : `+${stats.mutacao.total}`], ["Mutantes", `${finalRun?.total || 0} gerados (${mutation.tool})`], ["Escore (sem equivalentes)", scores.initial && initialRun !== finalRun ? `${pct1(scores.initial.adjusted)} → <b>${pct1(scores.final.adjusted)}</b>` : pct1(scores.final?.adjusted)], ["Sobreviventes", `${finalRun?.survived || 0}${mutation.equivalent ? " (todos equivalentes)" : ""}`]])}
     </div>
     <section class="panel panel-flush"><div class="panel-head"><div><h2 class="panel-title">Evolução da suíte</h2><div class="panel-subtitle">${ampCount ? "Os mesmos casos em todas as etapas; as etapas 2 e 3 ampliam alguns deles. A correção acontece antes da mutação" : "Cada etapa só acrescenta casos; a correção acontece antes da mutação"}</div></div></div><div class="table-wrap"><table><thead><tr><th>Etapa</th><th>Código</th><th>Casos</th><th>Passaram</th><th>Falharam</th><th>Comandos</th><th>Desvios</th><th>Mutação</th></tr></thead><tbody>${evolution.map((item) => `<tr><td class="main-cell">${e(item.stage)}</td><td>${e(item.code)}</td><td><strong>${e(item.cases)}</strong>${item.tests && item.tests !== item.cases ? `<div class="sub-cell">${e(item.tests)} testes pytest</div>` : ""}</td><td>${e(item.passed)}</td><td>${Number(item.failed) ? `<b class="txt-red">${e(item.failed)}</b><div class="sub-cell">defeitos confirmados</div>` : e(item.failed)}</td><td>${pct(item.statements)}${item.statementsText ? `<div class="sub-cell">${e(item.statementsText)}</div>` : ""}</td><td>${pct(item.branches)}${item.branchesText ? `<div class="sub-cell">${e(item.branchesText)}</div>` : ""}</td><td>${item.score != null ? `<strong>${pct(item.score)}</strong><div class="sub-cell">${e(item.mutation)}</div>` : "—"}</td></tr>`).join("")}</tbody></table></div></section>
     <section class="panel"><div class="panel-head"><div><h2 class="panel-title">Escopo testado</h2><div class="panel-subtitle">As três funcionalidades do recorte</div></div><button class="btn btn-small btn-ghost" data-route="requirements">Ver requisitos</button></div><div class="panel-body"><div class="scope-grid">${state.requirements.map((req) => {
@@ -602,8 +627,31 @@ function stagePage(stage) {
   return `${pageHead(info.eyebrow, info.label, subtitle)}
     ${stage === "mutacao" ? mutationOverview() : stageOverview(stage)}
     ${stage === "funcional" ? equivalenceBoard() : ""}
+    ${stage === "estrutural" ? coverageGapsPanel() : ""}
     ${stageGuide(stage)}
     ${stage === "mutacao" ? mutationListing(tests) : testListing(stage, tests)}`;
+}
+
+/** Cada lacuna de cobertura da etapa funcional: onde estava, por que ficou de fora e como foi fechada (ou por que é inviável). */
+function coverageGapsPanel() {
+  const gaps = state.testCatalog?.coverageGaps;
+  if (!gaps) return "";
+  const { before, after, corrected } = gaps;
+  const where = (item) => [...item.lines.map((line) => `linha ${line}`), ...item.branches.map(([from, to]) => `desvio ${from}→${to}`)].map((text) => `<code>${text}</code>`).join("");
+  return `<section class="panel gaps-panel"><div class="panel-head"><div><h2 class="panel-title">Lacunas de cobertura e como foram fechadas</h2><div class="panel-subtitle">O que a etapa funcional deixou sem executar na função ${e(gaps.function)} do código original, por que ficou de fora e qual ampliação cobriu. "Desvio 189→241" = da linha 189 o programa pula para a 241.</div></div></div>
+    <div class="panel-body">
+      <div class="gap-progress">
+        <div><span>Comandos (linhas)</span><strong>${before.comandos_cobertos}/${before.comandos} → ${after.comandos_cobertos}/${after.comandos}</strong><small>${pct1(before.pct_comandos)} → ${pct1(after.pct_comandos)} no código original</small></div>
+        <div><span>Desvios (saídas de if/for)</span><strong>${before.desvios_cobertos}/${before.desvios} → ${after.desvios_cobertos}/${after.desvios}</strong><small>${pct1(before.pct_desvios)} → ${pct1(after.pct_desvios)}; o que falta é inviável (L4), então a meta de 100% dos viáveis foi atingida</small></div>
+        <div><span>Depois da correção</span><strong>${corrected.comandos_cobertos}/${corrected.comandos} e ${corrected.desvios_cobertos}/${corrected.desvios}</strong><small>${pct1(corrected.pct_comandos)} dos comandos e ${pct1(corrected.pct_desvios)} dos desvios no código corrigido</small></div>
+      </div>
+      <div class="gap-list">${gaps.items.map((item) => `<article class="gap-card ${item.feasible ? "" : "infeasible"}">
+        <div class="gap-head"><span class="gap-id">${e(item.id)}</span><strong>${e(item.title)}</strong>${item.feasible ? `<span class="badge badge-green">Coberto</span>` : `<span class="badge badge-gray">Inviável</span>`}<span class="gap-where">${where(item)}</span></div>
+        <div class="gap-body"><div><h4>Por que ficou de fora</h4><p>${e(item.why)}</p></div><div><h4>${item.feasible ? "Como foi coberto" : "Por que nenhum teste cobre"}</h4><p>${e(item.how)}</p></div></div>
+        ${item.caseId || item.defect ? `<div class="gap-actions">${item.caseId ? `<button class="btn btn-small" data-action="open-test" data-id="${e(item.caseId)}">${icon("cases")}<span>Abrir a ampliação do ${e(item.caseId)}</span></button>` : ""}${item.defect && defectInfo(item.defect) ? `<button class="btn btn-small" data-action="open-defect-detail" data-id="${e(item.defect)}">${icon("bug")}<span>Ver o ${e(item.defect)}</span></button>` : ""}</div>` : ""}
+        <details class="gap-code"><summary>Ver o trecho no código original</summary>${item.snippets.map((snippet) => codeView(snippet.lines.join("\n"), snippet.start, new Set(item.marked))).join("")}</details>
+      </article>`).join("")}</div>
+    </div></section>`;
 }
 
 /** Quadro das classes de equivalência: o conceito, um exemplo na reta (hóspedes) e todas as classes com seus casos. */
@@ -751,19 +799,25 @@ function mutationOverview() {
   if (!finalRun) return `<section class="panel"><div class="panel-body">${emptyState("Nenhuma execução de mutação", "Execute a mutação pela Integração Python ou importe o backup do estudo.")}</div></section>`;
   const amplifiedTests = stageTests("mutacao").filter((item) => amplifications(item, "mutacao").length);
   const added = (amplifiedTests.length ? amplifiedTests : stageTests("mutacao")).map((item) => item.id).join(", ");
-  const calc = (run, label, extra = "") => `<div class="calc-card ${extra}"><span class="calc-label">${label}</span><strong>${pct(run.score)}</strong><div class="formula">${run.killed} mortos ÷ ${run.total} mutantes</div><small>${e(run.suite || "")}${run.survived ? ` · ${run.survived} sobreviventes` : ""}</small></div>`;
+  const scores = mutationScores();
+  const calc = (score, label, run, extra = "") => `<div class="calc-card ${extra}"><span class="calc-label">${label}</span><strong>${pct1(score.adjusted)}</strong><div class="formula">${score.killed} ÷ (${score.total} − ${score.equivalent}) × 100</div><small>${e(run.suite || "")}${run.survived ? ` · ${run.survived} sobreviventes` : ""}</small><div class="calc-raw">Sem descontar os equivalentes: ${score.killed} ÷ ${score.total} = ${pct1(score.raw)}</div></div>`;
   return `<div class="metric-grid">
       ${metricCard("Mutantes gerados", finalRun.total, `${mutation.functions.length ? `${mutation.functions.length} funções · ` : ""}${e(mutation.tool)}`, "bug", "#6756e8", "#efedff")}
       ${metricCard("Mortos", finalRun.killed, "algum teste falhou com o mutante", "shield", "#1f9d8a", "#e6f7f3")}
-      ${metricCard("Sobreviventes", finalRun.survived, mutation.equivalent ? `${mutation.equivalent} equivalentes ao original` : "nenhum teste detectou", "warning", "#d95555", "#fdecec")}
-      ${metricCard("Escore final", pct(finalRun.score), mutation.equivalent ? `${pct(mutation.adjustedScore)} sem equivalentes` : "mortos ÷ total", "chart", "#df8b2d", "#fff3df")}
+      ${metricCard("Sobreviventes", finalRun.survived, mutation.equivalent ? `todos os ${mutation.equivalent} são equivalentes` : "nenhum teste detectou", "warning", "#d95555", "#fdecec")}
+      ${metricCard("Escore de mutação", pct1(scores.final.adjusted), `${finalRun.killed} ÷ (${finalRun.total} − ${scores.equivalent}) · bruto ${pct1(scores.final.raw)}`, "chart", "#df8b2d", "#fff3df")}
     </div>
-    <section class="panel calc-panel"><div class="panel-head"><div><h2 class="panel-title">Cálculo do escore de mutação</h2><div class="panel-subtitle">Escore = mutantes mortos ÷ mutantes gerados. O ajustado desconta os equivalentes, que nenhum teste consegue matar.</div></div></div>
-      <div class="calc-grid">
-        ${initialRun && initialRun !== finalRun ? `${calc(initialRun, "Rodada inicial")}<div class="calc-arrow">→<span>${amplifiedTests.length ? `ampliação de ${amplifiedTests.length} casos` : `+${stageTests("mutacao").length} casos`}<br>${e(added)}</span></div>` : ""}
-        ${calc(finalRun, "Rodada final", "highlight")}
-        ${mutation.equivalent ? `<div class="calc-arrow">→<span>−${mutation.equivalent} equivalentes</span></div><div class="calc-card"><span class="calc-label">Escore ajustado</span><strong>${pct(mutation.adjustedScore)}</strong><div class="formula">${finalRun.killed} ÷ (${finalRun.total} − ${mutation.equivalent})</div><small>todos os não equivalentes foram mortos</small></div>` : ""}
+    <section class="panel calc-panel"><div class="panel-head"><div><h2 class="panel-title">Cálculo do escore de mutação</h2><div class="panel-subtitle">Os equivalentes saem do denominador: são mutantes que não mudam o comportamento do programa, então nenhum teste consegue matá-los.</div></div></div>
+      <div class="score-formula" aria-label="Escore de mutação igual a mutantes mortos dividido por total de mutantes gerados menos mutantes equivalentes, vezes 100">
+        <span>Escore de mutação (%) =</span>
+        <span class="frac"><span>Mutantes mortos</span><span>Total de mutantes gerados − Mutantes equivalentes</span></span>
+        <span>× 100</span>
       </div>
+      <div class="calc-grid">
+        ${scores.initial && initialRun !== finalRun ? `${calc(scores.initial, "Rodada inicial", initialRun)}<div class="calc-arrow">→<span>${amplifiedTests.length ? `ampliação de ${amplifiedTests.length} casos` : `+${stageTests("mutacao").length} casos`}<br>${e(added)}</span></div>` : ""}
+        ${calc(scores.final, "Rodada final", finalRun, "highlight")}
+      </div>
+      <div class="equiv-note">${icon("info")}<div><strong>Como os ${scores.equivalent} equivalentes foram identificados:</strong> depois da rodada inicial, cada um dos ${initialRun?.survived || 0} sobreviventes foi analisado. ${initialRun?.survived - scores.equivalent || 0} mostravam cenários que faltavam nos testes e foram mortos ampliando casos; ${scores.equivalent} não alteram o resultado do programa (S8 a S14). Filtre por "Equivalente" na lista de mutantes abaixo para ver a justificativa de cada um.</div></div>
     </section>`;
 }
 

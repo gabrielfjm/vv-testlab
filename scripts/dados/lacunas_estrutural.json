@@ -1,0 +1,46 @@
+{
+  "funcao": "reserve",
+  "lacunas": [
+    {
+      "id": "L1",
+      "titulo": "Abrir o formulário de reserva sem enviar",
+      "linhas": [241],
+      "desvios": [[189, 241]],
+      "porque": "Na etapa funcional, todos os casos enviavam o formulário (POST). Nenhum caso só abria a página de reserva (GET) com o usuário logado, então a linha que mostra o formulário nunca rodou.",
+      "como": "A ampliação do CT-001 abre o formulário antes de reservar.",
+      "caso": "CT-001",
+      "trechos": [[189, 189], [241, 241]]
+    },
+    {
+      "id": "L2",
+      "titulo": "Usuário que saiu do sistema",
+      "linhas": [242, 243],
+      "desvios": [[186, 242]],
+      "porque": "O caso sem login (CT-005) nunca chega a esse ramo: no código original, a sessão sem a chave de login derruba a página antes do if (DEF-07). O ramo 'não está logado' só roda quando a chave existe com valor falso, o que acontece depois de um logout.",
+      "como": "A ampliação do CT-005 entra e sai do sistema (logout) antes de tentar reservar.",
+      "caso": "CT-005",
+      "trechos": [[186, 186], [242, 243]]
+    },
+    {
+      "id": "L3",
+      "titulo": "Reserva existente de outro quarto",
+      "linhas": [],
+      "desvios": [[208, 205], [205, 204]],
+      "porque": "Nos casos funcionais, toda reserva que já existia era do mesmo quarto pedido. O laço que procura conflito nunca encontrou um quarto diferente, então os desvios 'não é o mesmo quarto, continua procurando' (208→205) e 'terminou de olhar sem achar conflito' (205→204) nunca rodaram.",
+      "como": "A ampliação do CT-001 cria uma reserva do Bruno para o quarto 102 antes de a Ana reservar o 101 nas mesmas datas. Ler esse laço para cobri-lo revelou o DEF-15, provado pela ampliação do CT-012.",
+      "caso": "CT-001",
+      "defeito": "DEF-15",
+      "trechos": [[203, 210]]
+    },
+    {
+      "id": "L4",
+      "titulo": "Reserva com número menor que o da anterior",
+      "linhas": [],
+      "desvios": [[230, 229]],
+      "porque": "O desvio é o 'falso' de if each.rid > current_id, dentro do laço que procura a reserva mais nova do usuário.",
+      "como": "Nenhum teste consegue cobrir: o banco devolve as reservas em ordem crescente de número, então cada número é sempre maior que o anterior e o if nunca dá falso. Por isso a meta é 100% dos desvios viáveis. A correção eliminou esse laço: o número da reserva passou a vir direto do banco (flush()).",
+      "inviavel": true,
+      "trechos": [[228, 231]]
+    }
+  ]
+}

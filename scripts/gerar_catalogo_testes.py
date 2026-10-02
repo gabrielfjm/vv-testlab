@@ -450,6 +450,52 @@ def detalhes_dos_defeitos(estado, testes):
     return detalhes
 
 
+def lacunas_de_cobertura(testes):
+    """O que a etapa funcional deixou sem executar, por que e como foi fechado (scripts/dados/lacunas_estrutural.json).
+
+    Confere com as evidências: toda linha e todo desvio descoberto na etapa funcional precisa estar documentado,
+    e o que continua descoberto depois da etapa estrutural precisa estar marcado como inviável.
+    """
+    dados = ler(EXPLICACOES.with_name("lacunas_estrutural.json"))
+    antes, depois, final = (ler(EVID / etapa / "cobertura-recorte.json") for etapa in ("funcional-original", "estrutural-original", "final-corrigida"))
+    funcao = dados["funcao"]
+    descobertos = lambda c: ({("linha", l) for l in c["por_funcao"][funcao]["linhas_nao_cobertas"]}
+                             | {("desvio", tuple(d)) for d in c["por_funcao"][funcao]["desvios_nao_cobertos"]})
+    documentados = {}
+    for lacuna in dados["lacunas"]:
+        for item in [("linha", l) for l in lacuna["linhas"]] + [("desvio", tuple(d)) for d in lacuna["desvios"]]:
+            documentados[item] = lacuna
+    faltando = descobertos(antes) - set(documentados)
+    if faltando:
+        raise SystemExit(f"Lacunas sem explicação em lacunas_estrutural.json: {sorted(faltando)}")
+    restantes = {documentados[item]["id"] for item in descobertos(depois)}
+    nao_inviaveis = [i for i in restantes if not next(l for l in dados["lacunas"] if l["id"] == i).get("inviavel")]
+    if nao_inviaveis:
+        raise SystemExit(f"Lacunas ainda descobertas depois da etapa estrutural e não marcadas como inviáveis: {nao_inviaveis}")
+    original = git("show", "sut-original:hotel/views.py").splitlines()
+    ampliacao = {t["id"]: next((p for p in t["parts"] if p["stage"] == "estrutural"), None) for t in testes}
+    itens = []
+    for lacuna in dados["lacunas"]:
+        marcadas = sorted(set(lacuna["linhas"]) | {d[0] for d in lacuna["desvios"]} | {d[1] for d in lacuna["desvios"]})
+        trechos = []
+        for a, b in lacuna["trechos"]:  # um pouco de contexto em volta de cada trecho
+            inicio, fim = max(1, a - 1), min(len(original), b + 1)
+            if trechos and inicio <= trechos[-1]["end"] + 1:
+                trechos[-1]["end"] = max(trechos[-1]["end"], fim)
+            else:
+                trechos.append({"start": inicio, "end": fim})
+        parte = ampliacao.get(lacuna.get("caso"))
+        itens.append({
+            "id": lacuna["id"], "title": lacuna["titulo"], "lines": lacuna["linhas"], "branches": lacuna["desvios"],
+            "why": lacuna["porque"], "how": lacuna["como"], "caseId": lacuna.get("caso"), "defect": lacuna.get("defeito"),
+            "feasible": not lacuna.get("inviavel"), "coveredBy": parte["function"] if parte else None,
+            "stillUncovered": lacuna["id"] in restantes, "marked": marcadas,
+            "snippets": [{"start": t["start"], "lines": original[t["start"] - 1:t["end"]]} for t in trechos],
+        })
+    resumo = lambda c: {k: c["recorte"][k] for k in ("comandos", "comandos_cobertos", "desvios", "desvios_cobertos", "pct_comandos", "pct_desvios")}
+    return {"function": funcao, "before": resumo(antes), "after": resumo(depois), "corrected": resumo(final), "items": itens}
+
+
 def main():
     estado = ler(BACKUP)
     testes, auxiliares = catalogo_de_testes(estado)
@@ -503,6 +549,7 @@ def main():
         "graphText": graph_text, "graphSources": graph_sources,
         "characterization": caracterizacao(),
         "defects": detalhes_dos_defeitos(estado, testes),
+        "coverageGaps": lacunas_de_cobertura(testes),
     }
     # Versão do estudo: a ferramenta recarrega o estudo publicado quando ela muda.
     estado.pop("studyVersion", None)

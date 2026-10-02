@@ -11734,7 +11734,202 @@
           "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
         }
       }
+    },
+    "coverageGaps": {
+      "function": "reserve",
+      "before": {
+        "comandos": 63,
+        "comandos_cobertos": 60,
+        "desvios": 34,
+        "desvios_cobertos": 29,
+        "pct_comandos": 95.2,
+        "pct_desvios": 85.3
+      },
+      "after": {
+        "comandos": 63,
+        "comandos_cobertos": 63,
+        "desvios": 34,
+        "desvios_cobertos": 33,
+        "pct_comandos": 100.0,
+        "pct_desvios": 97.1
+      },
+      "corrected": {
+        "comandos": 65,
+        "comandos_cobertos": 65,
+        "desvios": 28,
+        "desvios_cobertos": 28,
+        "pct_comandos": 100.0,
+        "pct_desvios": 100.0
+      },
+      "items": [
+        {
+          "id": "L1",
+          "title": "Abrir o formulário de reserva sem enviar",
+          "lines": [
+            241
+          ],
+          "branches": [
+            [
+              189,
+              241
+            ]
+          ],
+          "why": "Na etapa funcional, todos os casos enviavam o formulário (POST). Nenhum caso só abria a página de reserva (GET) com o usuário logado, então a linha que mostra o formulário nunca rodou.",
+          "how": "A ampliação do CT-001 abre o formulário antes de reservar.",
+          "caseId": "CT-001",
+          "defect": null,
+          "feasible": true,
+          "coveredBy": "test_CT_001_ampliacao_formulario_aberto_antes_e_outro_quarto_ocupado",
+          "stillUncovered": false,
+          "marked": [
+            189,
+            241
+          ],
+          "snippets": [
+            {
+              "start": 188,
+              "lines": [
+                "        us = User.query.filter_by(username=session['current_user']).first()",
+                "        if request.method == 'POST':",
+                "            room_list = reservation.room_numbers.data.split(\",\")"
+              ]
+            },
+            {
+              "start": 240,
+              "lines": [
+                "            return redirect(url_for('show_rooms'))",
+                "        return render_template('reservation.html', reservation=reservation)",
+                "    flash(\"User Not Authenticated !\")"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "L2",
+          "title": "Usuário que saiu do sistema",
+          "lines": [
+            242,
+            243
+          ],
+          "branches": [
+            [
+              186,
+              242
+            ]
+          ],
+          "why": "O caso sem login (CT-005) nunca chega a esse ramo: no código original, a sessão sem a chave de login derruba a página antes do if (DEF-07). O ramo 'não está logado' só roda quando a chave existe com valor falso, o que acontece depois de um logout.",
+          "how": "A ampliação do CT-005 entra e sai do sistema (logout) antes de tentar reservar.",
+          "caseId": "CT-005",
+          "defect": null,
+          "feasible": true,
+          "coveredBy": "test_CT_005_ampliacao_usuario_que_saiu_nao_reserva",
+          "stillUncovered": false,
+          "marked": [
+            186,
+            242,
+            243
+          ],
+          "snippets": [
+            {
+              "start": 185,
+              "lines": [
+                "def reserve():",
+                "    if session['user_available']:",
+                "        reservation = ReserveForm(request.form)"
+              ]
+            },
+            {
+              "start": 241,
+              "lines": [
+                "        return render_template('reservation.html', reservation=reservation)",
+                "    flash(\"User Not Authenticated !\")",
+                "    return redirect(url_for('index'))",
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "id": "L3",
+          "title": "Reserva existente de outro quarto",
+          "lines": [],
+          "branches": [
+            [
+              208,
+              205
+            ],
+            [
+              205,
+              204
+            ]
+          ],
+          "why": "Nos casos funcionais, toda reserva que já existia era do mesmo quarto pedido. O laço que procura conflito nunca encontrou um quarto diferente, então os desvios 'não é o mesmo quarto, continua procurando' (208→205) e 'terminou de olhar sem achar conflito' (205→204) nunca rodaram.",
+          "how": "A ampliação do CT-001 cria uma reserva do Bruno para o quarto 102 antes de a Ana reservar o 101 nas mesmas datas. Ler esse laço para cobri-lo revelou o DEF-15, provado pela ampliação do CT-012.",
+          "caseId": "CT-001",
+          "defect": "DEF-15",
+          "feasible": true,
+          "coveredBy": "test_CT_001_ampliacao_formulario_aberto_antes_e_outro_quarto_ocupado",
+          "stillUncovered": false,
+          "marked": [
+            204,
+            205,
+            208
+          ],
+          "snippets": [
+            {
+              "start": 202,
+              "lines": [
+                "            total_num = 0",
+                "            for each in room_list:",
+                "                for each_reserves in all_reserves:",
+                "                    for each_booking in all_bookings:",
+                "                        c1 = each_reserves.checkin_date",
+                "                        c2 = each_reserves.checkout_date",
+                "                        if each_booking.room_id == int(each) and (",
+                "                                (c1 <= d1 and d2 <= c2) or (d1 <= c1 and d2 <= c2) or (c1 <= d1 and c2 <= d2) or (",
+                "                                d1 <= c1 and c2 <= d2)):",
+                "                            flash(\"The room you are reserving is not available at the time you selected!\")"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "L4",
+          "title": "Reserva com número menor que o da anterior",
+          "lines": [],
+          "branches": [
+            [
+              230,
+              229
+            ]
+          ],
+          "why": "O desvio é o 'falso' de if each.rid > current_id, dentro do laço que procura a reserva mais nova do usuário.",
+          "how": "Nenhum teste consegue cobrir: o banco devolve as reservas em ordem crescente de número, então cada número é sempre maior que o anterior e o if nunca dá falso. Por isso a meta é 100% dos desvios viáveis. A correção eliminou esse laço: o número da reserva passou a vir direto do banco (flush()).",
+          "caseId": null,
+          "defect": null,
+          "feasible": false,
+          "coveredBy": null,
+          "stillUncovered": true,
+          "marked": [
+            229,
+            230
+          ],
+          "snippets": [
+            {
+              "start": 227,
+              "lines": [
+                "            # Getting the most current reservation the user made",
+                "            current_id = 0",
+                "            for each in reservations_committed:",
+                "                if each.rid > current_id:",
+                "                    current_id = each.rid",
+                "            # Storing each rooms booked into the Booked table along with reservation id"
+              ]
+            }
+          ]
+        }
+      ]
     }
   },
-  "studyVersion": "81a326cd852e"
+  "studyVersion": "7e551d219e58"
 }
