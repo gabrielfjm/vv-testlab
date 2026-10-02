@@ -91,6 +91,27 @@ test("teste funcional: filtro, código, assertivas e tabela de resultados", () =
   expect(document.querySelector(".modal-wide")).toBeNull();
 });
 
+test("defeitos: linha do tempo e detalhe com onde acontecia e quando foi corrigido", () => {
+  click(document.querySelector('.nav-item[data-route="defects"]'));
+  const timeline = document.querySelector(".defects-timeline");
+  expect(timeline.textContent).toContain("Etapa 1 · Teste funcional");
+  expect(timeline.textContent).toContain("Etapa 3 · Teste de mutação");
+  expect(timeline.querySelectorAll(".dt-step.found .tag-link")).toHaveLength(10);
+  click(document.querySelector('#defect-table tr[data-id="DEF-01"]'));
+  const modal = document.querySelector(".modal-wide");
+  expect(modal.querySelector("h2").textContent).toContain("DEF-01");
+  expect(modal.querySelectorAll(".timeline li")).toHaveLength(4);
+  expect(modal.querySelector('.commit-link[href$="2d1b2cd"], .commit-link').getAttribute("href")).toContain("/commit/");
+  expect([...modal.querySelectorAll(".code-view .code-line.marked")].map((line) => line.textContent).join("\n")).toContain("c1 <= d1");
+  expect(modal.textContent).toContain("_periodos_conflitam");
+  // Do defeito para o caso que o revelou.
+  click(modal.querySelector('.link-btn[data-action="open-test"]'));
+  expect(document.querySelector(".modal-wide h2").textContent).toContain("CT-003");
+  click(document.querySelector('.modal-wide .tag-link[data-action="open-defect-detail"]'));
+  expect(document.querySelector(".modal-wide h2").textContent).toContain("DEF-01");
+  click(document.querySelector('.modal-wide [data-action="close-detail"]'));
+});
+
 test("teste estrutural: detalhe mostra o grafo coberto pelo caso", () => {
   click(document.querySelector('[data-route="estrutural"]'));
   expect(visible("#estrutural-list .filter-item")).toHaveLength(5);

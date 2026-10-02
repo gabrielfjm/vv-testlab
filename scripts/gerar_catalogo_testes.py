@@ -49,7 +49,7 @@ SOBREVIVENTES = {
     (17, "core/ReplaceComparisonOperator_Lt_LtE", 1): ("S1", "Não equivalente",
         "Nenhum caso tinha a nova estadia terminando no dia em que outra começa; a etapa funcional só testou o limite do outro lado (CT-003). Morto pela ampliação do CT-003."),
     (17, "core/ReplaceComparisonOperator_Lt_IsNot", 1): ("S2", "Não equivalente",
-        "Mesmo cenário do S1: entre objetos de data distintos, 'is not' é sempre verdadeiro e acusa conflito. Morto pelo CT-020."),
+        "Mesmo cenário do S1: entre objetos de data distintos, 'is not' é sempre verdadeiro e acusa conflito. Morto pela ampliação do CT-003."),
     (17, "core/ReplaceComparisonOperator_Lt_NotEq", 1): ("S3", "Não equivalente",
         "'!=' acusa conflito com qualquer estadia posterior não adjacente; nenhum caso reservava um período inteiramente anterior a outro. Morto pela ampliação do CT-003."),
     (23, "core/ReplaceComparisonOperator_Eq_GtE", 0): ("S4", "Não equivalente",
@@ -380,6 +380,76 @@ def caracterizacao():
     return dados
 
 
+def commit_info(ref):
+    hash_curto, data, mensagem = git("log", "-1", "--format=%h%n%ad%n%s", "--date=format:%d/%m/%Y %H:%M", ref).splitlines()
+    return {"hash": hash_curto, "full": git("rev-parse", ref), "date": data, "message": mensagem}
+
+
+def trecho_corrigido(linhas, defeito):
+    """Blocos do views.py corrigido marcados com o comentário do defeito (ex.: "# DEF-04/05/06: ...")."""
+    numero = defeito.split("-")[1]
+    blocos = []
+    for i, linha in enumerate(linhas):
+        marca = re.search(r"DEF-(\d+(?:/\d+)*)", linha)
+        if not marca or numero not in marca.group(1).split("/"):
+            continue
+        anterior = linhas[i - 1].strip() if i else ""
+        if anterior.startswith("def "):  # função auxiliar inteira
+            inicio, fim = i - 1, i
+            while fim + 1 < len(linhas) and linhas[fim + 1].strip():
+                fim += 1
+        else:  # comentário + o comando seguinte e o que está dentro dele
+            recuo = len(linha) - len(linha.lstrip())
+            inicio, fim = i, min(i + 1, len(linhas) - 1)
+            while fim + 1 < len(linhas) and linhas[fim + 1].strip() and len(linhas[fim + 1]) - len(linhas[fim + 1].lstrip()) > recuo:
+                fim += 1
+        funcao = next((l[4:].split("(")[0] for l in reversed(linhas[:inicio + 1]) if l.startswith("def ")), "")
+        blocos.append({"start": inicio + 1, "marked": [i + 1], "lines": linhas[inicio:fim + 1], "function": funcao})
+    # Primeiro os trechos das funções do recorte (reserva, custo e auxiliares).
+    return sorted(blocos, key=lambda b: not (b["function"] in {"reserve", "cal_cost"} or b["function"].startswith("_")))
+
+
+def detalhes_dos_defeitos(estado, testes):
+    """Onde cada defeito acontecia (código original), como ficou (código corrigido) e quando foi revelado e corrigido."""
+    tabela = {}
+    for linha in (PARTES / "defeitos.md").read_text(encoding="utf-8").splitlines():
+        celulas = [c.strip() for c in linha.strip().strip("|").split("|")]
+        if celulas and re.fullmatch(r"DEF-\d+", celulas[0]):
+            tabela[celulas[0]] = dict(zip(["id", "severity", "where", "input", "expected", "obtained", "tests", "cause", "fix"], celulas))
+    original = git("show", "sut-original:hotel/views.py").splitlines()
+    corrigido = (HOTEL / "hotel" / "views.py").read_text(encoding="utf-8").splitlines()
+    etapas = {"funcional": commit_info(git("log", "-1", "--format=%h", "--grep=^Etapa 1")),
+              "estrutural": commit_info(git("log", "-1", "--format=%h", "--grep=^Etapa 2"))}
+    mutacao = commit_info(git("log", "-1", "--format=%h", "--grep=mutação inicial"))
+    revelado = {p["defect"]: (p["stage"], t["id"]) for t in testes for p in t["parts"] if p.get("defect")}
+    detalhes = {}
+    for defeito in estado["defects"]:
+        linha = tabela[defeito["id"]]
+        # Trecho do original: a parte da função reserve (o recorte), ou a primeira função citada.
+        partes = [p.strip() for p in linha["where"].split(";")]
+        parte = next((p for p in partes if p.startswith("`reserve`")), partes[0])
+        funcao = re.match(r"`([^`]+)`", parte).group(1)
+        marcadas = []
+        for a, b in re.findall(r"(\d+)(?:–(\d+))?", parte.split("`")[-1]):
+            marcadas += list(range(int(a), int(b or a) + 1))
+        inicio, fim = max(1, min(marcadas) - 2), min(len(original), max(marcadas) + 2)
+        estagio, caso = revelado.get(defeito["id"], ("funcional", defeito["testCaseId"]))
+        commits = list(dict.fromkeys(re.findall(r"`([0-9a-f]{7})`", linha["fix"])))
+        detalhes[defeito["id"]] = {
+            "severity": linha["severity"], "function": funcao, "where": linha["where"],
+            "input": linha["input"], "expected": linha["expected"], "obtained": linha["obtained"],
+            "cause": linha["cause"], "fix": re.sub(r"\s*\((`[0-9a-f]{7}`(?:, )?)+\)\s*$", "", linha["fix"]),
+            "original": {"start": inicio, "marked": marcadas, "lines": original[inicio - 1:fim]},
+            "corrected": trecho_corrigido(corrigido, defeito["id"])[:2],
+            "revealed": {"stage": estagio, "caseId": caso, "commit": etapas[estagio]},
+            "fixedBy": [commit_info(c) for c in commits],
+            "mutationAfter": mutacao,
+        }
+        if not detalhes[defeito["id"]]["corrected"] or not commits:
+            raise SystemExit(f"{defeito['id']}: sem trecho corrigido ou sem commit de correção")
+    return detalhes
+
+
 def main():
     estado = ler(BACKUP)
     testes, auxiliares = catalogo_de_testes(estado)
@@ -428,6 +498,7 @@ def main():
         "guide": {"base": explicacoes["base"], "stages": explicacoes["etapas"]},
         "graphText": graph_text, "graphSources": graph_sources,
         "characterization": caracterizacao(),
+        "defects": detalhes_dos_defeitos(estado, testes),
     }
     # Versão do estudo: a ferramenta recarrega o estudo publicado quando ela muda.
     estado.pop("studyVersion", None)

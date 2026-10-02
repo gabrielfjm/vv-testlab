@@ -7885,7 +7885,7 @@
           "error": "AssertionError: assert '/reserve' == '/rooms' |  | - /rooms | + /reserve",
           "survivorTag": "S2",
           "classification": "Não equivalente",
-          "justification": "Mesmo cenário do S1: entre objetos de data distintos, 'is not' é sempre verdadeiro e acusa conflito. Morto pelo CT-020."
+          "justification": "Mesmo cenário do S1: entre objetos de data distintos, 'is not' é sempre verdadeiro e acusa conflito. Morto pela ampliação do CT-003."
         },
         {
           "id": "M013",
@@ -10988,7 +10988,753 @@
         ]
       },
       "diagramaER": "diagrama-er.png"
+    },
+    "defects": {
+      "DEF-01": {
+        "severity": "Crítica",
+        "function": "reserve",
+        "where": "`reserve` 208–210; `show_rooms` 160–162",
+        "input": "101 reservado de 10/03/2030 a 12/03/2030; reservar 101 de 12/03/2030 a 14/03/2030 (entrada no dia da saída)",
+        "expected": "aceita",
+        "obtained": "recusado: \"not available\"",
+        "cause": "`(c1<=d1 and d2<=c2) or (d1<=c1 and d2<=c2) or (c1<=d1 and c2<=d2) or (d1<=c1 and c2<=d2)` é tautologia: para quaisquer datas, uma alternativa é verdadeira. Quarto reservado uma vez fica bloqueado para sempre",
+        "fix": "`_periodos_conflitam(a1, a2, b1, b2) = a1 < b2 and b1 < a2`",
+        "original": {
+          "start": 206,
+          "marked": [
+            208,
+            209,
+            210
+          ],
+          "lines": [
+            "                        c1 = each_reserves.checkin_date",
+            "                        c2 = each_reserves.checkout_date",
+            "                        if each_booking.room_id == int(each) and (",
+            "                                (c1 <= d1 and d2 <= c2) or (d1 <= c1 and d2 <= c2) or (c1 <= d1 and c2 <= d2) or (",
+            "                                d1 <= c1 and c2 <= d2)):",
+            "                            flash(\"The room you are reserving is not available at the time you selected!\")",
+            "                            return redirect(url_for('reserve'))"
+          ]
+        },
+        "corrected": [
+          {
+            "start": 15,
+            "marked": [
+              16
+            ],
+            "lines": [
+              "def _periodos_conflitam(entrada_a, saida_a, entrada_b, saida_b):",
+              "    # DEF-01: estadias são intervalos [entrada, saída); só há conflito se houver interseção.",
+              "    return entrada_a < saida_b and entrada_b < saida_a"
+            ],
+            "function": "_periodos_conflitam"
+          }
+        ],
+        "revealed": {
+          "stage": "funcional",
+          "caseId": "CT-003",
+          "commit": {
+            "hash": "afeb312",
+            "full": "afeb312fea548c1ca50f31a0cf66eb8b7b07d011",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 1: testes funcionais (classes de equivalência e valor limite)"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "2d1b2cd",
+            "full": "2d1b2cdbf647981614fdcf985b06979525c00f22",
+            "date": "30/09/2026 09:50",
+            "message": "Corrige DEF-01 e DEF-15: cálculo de quartos ocupados"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      },
+      "DEF-02": {
+        "severity": "Média",
+        "function": "reserve",
+        "where": "`reserve` 199",
+        "input": "entrada hoje, 1 noite",
+        "expected": "aceita",
+        "obtained": "recusado: \"at least today\"",
+        "cause": "`d1` (hoje 00:00) comparado com `datetime.now()`",
+        "fix": "`d1.date() < date.today()`",
+        "original": {
+          "start": 197,
+          "marked": [
+            199
+          ],
+          "lines": [
+            "            all_rooms = Rooms.query.all()",
+            "",
+            "            if d2 <= d1 or d1 < datetime.datetime.now() or d2 < datetime.datetime.now():",
+            "                flash(\"Please recheck your date! It has to be at least today! \")",
+            "                return redirect(url_for('reserve'))"
+          ]
+        },
+        "corrected": [
+          {
+            "start": 229,
+            "marked": [
+              229
+            ],
+            "lines": [
+              "            # DEF-02: comparar a data de entrada com a data de hoje, e não com o instante atual.",
+              "            if d2 <= d1 or d1.date() < datetime.date.today():",
+              "                flash(\"Please recheck your date! It has to be at least today! \")",
+              "                return redirect(url_for('reserve'))"
+            ],
+            "function": "reserve"
+          }
+        ],
+        "revealed": {
+          "stage": "funcional",
+          "caseId": "CT-004",
+          "commit": {
+            "hash": "afeb312",
+            "full": "afeb312fea548c1ca50f31a0cf66eb8b7b07d011",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 1: testes funcionais (classes de equivalência e valor limite)"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "704bc86",
+            "full": "704bc86c03bb02cc354c1c203e81b3329a8904f6",
+            "date": "30/09/2026 09:51",
+            "message": "Corrige DEF-02: entrada no dia atual era rejeitada"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      },
+      "DEF-03": {
+        "severity": "Alta",
+        "function": "reserve",
+        "where": "`reserve` 217",
+        "input": "101, 0 hóspedes",
+        "expected": "recusa",
+        "obtained": "reserva gravada com 0 hóspedes e custo 200",
+        "cause": "só há limite superior `num > total_num`",
+        "fix": "exigir `num >= 1` antes de gravar",
+        "original": {
+          "start": 215,
+          "marked": [
+            217
+          ],
+          "lines": [
+            "                    if int(each) == each_room.room_number:",
+            "                        total_num += each_room.capacity",
+            "            if num > total_num:",
+            "                flash(",
+            "                    \"The rooms you selected can't fit the number of guests you entered. Please restart the reservation!\")"
+          ]
+        },
+        "corrected": [
+          {
+            "start": 222,
+            "marked": [
+              222
+            ],
+            "lines": [
+              "            # DEF-03/18/19: dados malformados ou menos de um hóspede são rejeitados antes de gravar.",
+              "            if room_list is None or num is None or num < 1 or checkin is None or checkout is None:",
+              "                flash(\"Please recheck the room numbers, the number of guests and the dates!\")",
+              "                return redirect(url_for('reserve'))"
+            ],
+            "function": "reserve"
+          }
+        ],
+        "revealed": {
+          "stage": "funcional",
+          "caseId": "CT-009",
+          "commit": {
+            "hash": "afeb312",
+            "full": "afeb312fea548c1ca50f31a0cf66eb8b7b07d011",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 1: testes funcionais (classes de equivalência e valor limite)"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "644fd0d",
+            "full": "644fd0dbaff8a9fb6a809fd9a0fd4f6d2f6cbee6",
+            "date": "30/09/2026 09:52",
+            "message": "Corrige DEF-03, DEF-04, DEF-05, DEF-06, DEF-18 e DEF-19: validação da reserva"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      },
+      "DEF-04": {
+        "severity": "Média",
+        "function": "reserve",
+        "where": "`reserve` 208, 215",
+        "input": "quartos `abc`",
+        "expected": "recusa com mensagem",
+        "obtained": "500 `ValueError: invalid literal for int()`",
+        "cause": "`int(each)` sem tratamento",
+        "fix": "`_ler_quartos` converte com `try/except`",
+        "original": {
+          "start": 206,
+          "marked": [
+            208,
+            215
+          ],
+          "lines": [
+            "                        c1 = each_reserves.checkin_date",
+            "                        c2 = each_reserves.checkout_date",
+            "                        if each_booking.room_id == int(each) and (",
+            "                                (c1 <= d1 and d2 <= c2) or (d1 <= c1 and d2 <= c2) or (c1 <= d1 and c2 <= d2) or (",
+            "                                d1 <= c1 and c2 <= d2)):",
+            "                            flash(\"The room you are reserving is not available at the time you selected!\")",
+            "                            return redirect(url_for('reserve'))",
+            "            for each in room_list:",
+            "                for each_room in all_rooms:",
+            "                    if int(each) == each_room.room_number:",
+            "                        total_num += each_room.capacity",
+            "            if num > total_num:"
+          ]
+        },
+        "corrected": [
+          {
+            "start": 27,
+            "marked": [
+              28
+            ],
+            "lines": [
+              "def _ler_quartos(texto):",
+              "    # DEF-04/05/06: aceita apenas números inteiros de quartos existentes, sem repetição.",
+              "    try:",
+              "        numeros = [int(parte) for parte in texto.split(\",\")]",
+              "    except ValueError:",
+              "        return None",
+              "    existentes = {quarto.room_number for quarto in Rooms.query.all()}",
+              "    if len(set(numeros)) != len(numeros) or not set(numeros) <= existentes:",
+              "        return None",
+              "    return numeros"
+            ],
+            "function": "_ler_quartos"
+          }
+        ],
+        "revealed": {
+          "stage": "funcional",
+          "caseId": "CT-006",
+          "commit": {
+            "hash": "afeb312",
+            "full": "afeb312fea548c1ca50f31a0cf66eb8b7b07d011",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 1: testes funcionais (classes de equivalência e valor limite)"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "644fd0d",
+            "full": "644fd0dbaff8a9fb6a809fd9a0fd4f6d2f6cbee6",
+            "date": "30/09/2026 09:52",
+            "message": "Corrige DEF-03, DEF-04, DEF-05, DEF-06, DEF-18 e DEF-19: validação da reserva"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      },
+      "DEF-05": {
+        "severity": "Alta",
+        "function": "reserve",
+        "where": "`reserve` 213–216, 233–236",
+        "input": "quartos `101,999`, 2 hóspedes",
+        "expected": "recusa",
+        "obtained": "gravado; vínculo com quarto 999 inexistente",
+        "cause": "a existência só influencia indiretamente a soma de capacidades",
+        "fix": "`_ler_quartos` exige `set(numeros) <= existentes`",
+        "original": {
+          "start": 211,
+          "marked": [
+            213,
+            214,
+            215,
+            216,
+            233,
+            234,
+            235,
+            236
+          ],
+          "lines": [
+            "                            flash(\"The room you are reserving is not available at the time you selected!\")",
+            "                            return redirect(url_for('reserve'))",
+            "            for each in room_list:",
+            "                for each_room in all_rooms:",
+            "                    if int(each) == each_room.room_number:",
+            "                        total_num += each_room.capacity",
+            "            if num > total_num:",
+            "                flash(",
+            "                    \"The rooms you selected can't fit the number of guests you entered. Please restart the reservation!\")",
+            "                return redirect(url_for('reserve'))",
+            "            reserve = Reservations(us.uid, reservation.checkin_date.data, reservation.checkout_date.data,",
+            "                                   reservation.num_guests.data, 0)",
+            "            db.session.add(reserve)",
+            "            db.session.commit()",
+            "            reservations_committed = Reservations.query.filter_by(ruid=us.uid).all()",
+            "",
+            "            # Getting the most current reservation the user made",
+            "            current_id = 0",
+            "            for each in reservations_committed:",
+            "                if each.rid > current_id:",
+            "                    current_id = each.rid",
+            "            # Storing each rooms booked into the Booked table along with reservation id",
+            "            for each in room_list:",
+            "                single_room = Booked(current_id, each)",
+            "                db.session.add(single_room)",
+            "                db.session.commit()",
+            "            cur_res = Reservations.query.get(current_id)",
+            "            cur_res.costs = cal_cost(current_id)"
+          ]
+        },
+        "corrected": [
+          {
+            "start": 27,
+            "marked": [
+              28
+            ],
+            "lines": [
+              "def _ler_quartos(texto):",
+              "    # DEF-04/05/06: aceita apenas números inteiros de quartos existentes, sem repetição.",
+              "    try:",
+              "        numeros = [int(parte) for parte in texto.split(\",\")]",
+              "    except ValueError:",
+              "        return None",
+              "    existentes = {quarto.room_number for quarto in Rooms.query.all()}",
+              "    if len(set(numeros)) != len(numeros) or not set(numeros) <= existentes:",
+              "        return None",
+              "    return numeros"
+            ],
+            "function": "_ler_quartos"
+          }
+        ],
+        "revealed": {
+          "stage": "funcional",
+          "caseId": "CT-007",
+          "commit": {
+            "hash": "afeb312",
+            "full": "afeb312fea548c1ca50f31a0cf66eb8b7b07d011",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 1: testes funcionais (classes de equivalência e valor limite)"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "644fd0d",
+            "full": "644fd0dbaff8a9fb6a809fd9a0fd4f6d2f6cbee6",
+            "date": "30/09/2026 09:52",
+            "message": "Corrige DEF-03, DEF-04, DEF-05, DEF-06, DEF-18 e DEF-19: validação da reserva"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      },
+      "DEF-06": {
+        "severity": "Alta",
+        "function": "reserve",
+        "where": "`reserve` 213–216, 233–236",
+        "input": "quartos `101,101`, 2 hóspedes",
+        "expected": "recusa",
+        "obtained": "2 vínculos, capacidade 4 e custo 400 (dobro)",
+        "cause": "lista não é deduplicada nem validada",
+        "fix": "`_ler_quartos` recusa repetição",
+        "original": {
+          "start": 211,
+          "marked": [
+            213,
+            214,
+            215,
+            216,
+            233,
+            234,
+            235,
+            236
+          ],
+          "lines": [
+            "                            flash(\"The room you are reserving is not available at the time you selected!\")",
+            "                            return redirect(url_for('reserve'))",
+            "            for each in room_list:",
+            "                for each_room in all_rooms:",
+            "                    if int(each) == each_room.room_number:",
+            "                        total_num += each_room.capacity",
+            "            if num > total_num:",
+            "                flash(",
+            "                    \"The rooms you selected can't fit the number of guests you entered. Please restart the reservation!\")",
+            "                return redirect(url_for('reserve'))",
+            "            reserve = Reservations(us.uid, reservation.checkin_date.data, reservation.checkout_date.data,",
+            "                                   reservation.num_guests.data, 0)",
+            "            db.session.add(reserve)",
+            "            db.session.commit()",
+            "            reservations_committed = Reservations.query.filter_by(ruid=us.uid).all()",
+            "",
+            "            # Getting the most current reservation the user made",
+            "            current_id = 0",
+            "            for each in reservations_committed:",
+            "                if each.rid > current_id:",
+            "                    current_id = each.rid",
+            "            # Storing each rooms booked into the Booked table along with reservation id",
+            "            for each in room_list:",
+            "                single_room = Booked(current_id, each)",
+            "                db.session.add(single_room)",
+            "                db.session.commit()",
+            "            cur_res = Reservations.query.get(current_id)",
+            "            cur_res.costs = cal_cost(current_id)"
+          ]
+        },
+        "corrected": [
+          {
+            "start": 27,
+            "marked": [
+              28
+            ],
+            "lines": [
+              "def _ler_quartos(texto):",
+              "    # DEF-04/05/06: aceita apenas números inteiros de quartos existentes, sem repetição.",
+              "    try:",
+              "        numeros = [int(parte) for parte in texto.split(\",\")]",
+              "    except ValueError:",
+              "        return None",
+              "    existentes = {quarto.room_number for quarto in Rooms.query.all()}",
+              "    if len(set(numeros)) != len(numeros) or not set(numeros) <= existentes:",
+              "        return None",
+              "    return numeros"
+            ],
+            "function": "_ler_quartos"
+          }
+        ],
+        "revealed": {
+          "stage": "funcional",
+          "caseId": "CT-008",
+          "commit": {
+            "hash": "afeb312",
+            "full": "afeb312fea548c1ca50f31a0cf66eb8b7b07d011",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 1: testes funcionais (classes de equivalência e valor limite)"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "644fd0d",
+            "full": "644fd0dbaff8a9fb6a809fd9a0fd4f6d2f6cbee6",
+            "date": "30/09/2026 09:52",
+            "message": "Corrige DEF-03, DEF-04, DEF-05, DEF-06, DEF-18 e DEF-19: validação da reserva"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      },
+      "DEF-07": {
+        "severity": "Média",
+        "function": "reserve",
+        "where": "`delete_reservation` 79; `show_rooms` 144; `check_available` 172; `reserve` 186",
+        "input": "visitante sem login abre /reserve",
+        "expected": "redirecionar ao início",
+        "obtained": "500 `KeyError: 'user_available'`",
+        "cause": "`session['user_available']` sem a chave, que só existe após login/logout",
+        "fix": "`_sessao_autenticada()` com `session.get(..., False)`",
+        "original": {
+          "start": 184,
+          "marked": [
+            186
+          ],
+          "lines": [
+            "@app.route('/reserve', methods=['GET', 'POST'])",
+            "def reserve():",
+            "    if session['user_available']:",
+            "        reservation = ReserveForm(request.form)",
+            "        us = User.query.filter_by(username=session['current_user']).first()"
+          ]
+        },
+        "corrected": [
+          {
+            "start": 10,
+            "marked": [
+              11
+            ],
+            "lines": [
+              "def _sessao_autenticada():",
+              "    # DEF-07: session['user_available'] lança KeyError quando a chave não existe.",
+              "    return session.get('user_available', False)"
+            ],
+            "function": "_sessao_autenticada"
+          }
+        ],
+        "revealed": {
+          "stage": "funcional",
+          "caseId": "CT-005",
+          "commit": {
+            "hash": "afeb312",
+            "full": "afeb312fea548c1ca50f31a0cf66eb8b7b07d011",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 1: testes funcionais (classes de equivalência e valor limite)"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "8a6c4bd",
+            "full": "8a6c4bd78fc6cf3a02afd0bfe196f8131b4bc479",
+            "date": "30/09/2026 09:50",
+            "message": "Corrige DEF-07: rotas do recorte sem chave de sessão geravam KeyError"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      },
+      "DEF-18": {
+        "severity": "Média",
+        "function": "reserve",
+        "where": "`reserve` 191–192; `show_rooms` 153–154",
+        "input": "data `2030-13-01`",
+        "expected": "recusar",
+        "obtained": "500 `TypeError: combine() argument 1 must be datetime.date, not None`",
+        "cause": "`DateField` inválido deixa `data = None`",
+        "fix": "valida datas antes de usar",
+        "original": {
+          "start": 189,
+          "marked": [
+            191,
+            192
+          ],
+          "lines": [
+            "        if request.method == 'POST':",
+            "            room_list = reservation.room_numbers.data.split(\",\")",
+            "            d1 = datetime.datetime.combine(reservation.checkin_date.data, datetime.time(0, 0))",
+            "            d2 = datetime.datetime.combine(reservation.checkout_date.data, datetime.time(0, 0))",
+            "            num = reservation.num_guests.data",
+            ""
+          ]
+        },
+        "corrected": [
+          {
+            "start": 222,
+            "marked": [
+              222
+            ],
+            "lines": [
+              "            # DEF-03/18/19: dados malformados ou menos de um hóspede são rejeitados antes de gravar.",
+              "            if room_list is None or num is None or num < 1 or checkin is None or checkout is None:",
+              "                flash(\"Please recheck the room numbers, the number of guests and the dates!\")",
+              "                return redirect(url_for('reserve'))"
+            ],
+            "function": "reserve"
+          },
+          {
+            "start": 201,
+            "marked": [
+              201
+            ],
+            "lines": [
+              "            # DEF-12/13/18: período vazio ou invertido, data malformada e hóspedes < 1 são recusados.",
+              "            if checkin is None or checkout is None or checkout <= checkin or num is None or num < 1:",
+              "                flash(\"Please recheck the dates and the number of guests!\")",
+              "                return redirect(url_for('check_available'))"
+            ],
+            "function": "check_available"
+          }
+        ],
+        "revealed": {
+          "stage": "funcional",
+          "caseId": "CT-014",
+          "commit": {
+            "hash": "afeb312",
+            "full": "afeb312fea548c1ca50f31a0cf66eb8b7b07d011",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 1: testes funcionais (classes de equivalência e valor limite)"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "644fd0d",
+            "full": "644fd0dbaff8a9fb6a809fd9a0fd4f6d2f6cbee6",
+            "date": "30/09/2026 09:52",
+            "message": "Corrige DEF-03, DEF-04, DEF-05, DEF-06, DEF-18 e DEF-19: validação da reserva"
+          },
+          {
+            "hash": "9e66e2d",
+            "full": "9e66e2d43812f7e255b20d1d714d36257cca038c",
+            "date": "30/09/2026 09:53",
+            "message": "Corrige DEF-12, DEF-13, DEF-14, DEF-16, DEF-17 e DEF-18: consulta de disponibilidade"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      },
+      "DEF-19": {
+        "severity": "Média",
+        "function": "reserve",
+        "where": "`reserve` 217",
+        "input": "hóspedes `dois`",
+        "expected": "recusar",
+        "obtained": "500 `TypeError: '>' not supported`",
+        "cause": "`IntegerField` inválido deixa `None`",
+        "fix": "exige inteiro `>= 1`",
+        "original": {
+          "start": 215,
+          "marked": [
+            217
+          ],
+          "lines": [
+            "                    if int(each) == each_room.room_number:",
+            "                        total_num += each_room.capacity",
+            "            if num > total_num:",
+            "                flash(",
+            "                    \"The rooms you selected can't fit the number of guests you entered. Please restart the reservation!\")"
+          ]
+        },
+        "corrected": [
+          {
+            "start": 222,
+            "marked": [
+              222
+            ],
+            "lines": [
+              "            # DEF-03/18/19: dados malformados ou menos de um hóspede são rejeitados antes de gravar.",
+              "            if room_list is None or num is None or num < 1 or checkin is None or checkout is None:",
+              "                flash(\"Please recheck the room numbers, the number of guests and the dates!\")",
+              "                return redirect(url_for('reserve'))"
+            ],
+            "function": "reserve"
+          }
+        ],
+        "revealed": {
+          "stage": "funcional",
+          "caseId": "CT-011",
+          "commit": {
+            "hash": "afeb312",
+            "full": "afeb312fea548c1ca50f31a0cf66eb8b7b07d011",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 1: testes funcionais (classes de equivalência e valor limite)"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "644fd0d",
+            "full": "644fd0dbaff8a9fb6a809fd9a0fd4f6d2f6cbee6",
+            "date": "30/09/2026 09:52",
+            "message": "Corrige DEF-03, DEF-04, DEF-05, DEF-06, DEF-18 e DEF-19: validação da reserva"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      },
+      "DEF-15": {
+        "severity": "Alta",
+        "function": "reserve",
+        "where": "`reserve` 203–210; `show_rooms` 155–160",
+        "input": "101 de Ana de 10/03/2030 a 12/03/2030 e 102 de Bruno de 20/03/2030 a 22/03/2030; reservar 101 de 20/03/2030 a 22/03/2030",
+        "expected": "aceita",
+        "obtained": "recusado (vínculo do 101 × datas da reserva do 102)",
+        "cause": "laço triplo reservas × vínculos sem `brid == rid`; **mascarado por DEF-01**",
+        "fix": "junção `Booked.brid == Reservations.rid` em `_quartos_ocupados`",
+        "original": {
+          "start": 201,
+          "marked": [
+            203,
+            204,
+            205,
+            206,
+            207,
+            208,
+            209,
+            210
+          ],
+          "lines": [
+            "                return redirect(url_for('reserve'))",
+            "            total_num = 0",
+            "            for each in room_list:",
+            "                for each_reserves in all_reserves:",
+            "                    for each_booking in all_bookings:",
+            "                        c1 = each_reserves.checkin_date",
+            "                        c2 = each_reserves.checkout_date",
+            "                        if each_booking.room_id == int(each) and (",
+            "                                (c1 <= d1 and d2 <= c2) or (d1 <= c1 and d2 <= c2) or (c1 <= d1 and c2 <= d2) or (",
+            "                                d1 <= c1 and c2 <= d2)):",
+            "                            flash(\"The room you are reserving is not available at the time you selected!\")",
+            "                            return redirect(url_for('reserve'))"
+          ]
+        },
+        "corrected": [
+          {
+            "start": 20,
+            "marked": [
+              21
+            ],
+            "lines": [
+              "def _quartos_ocupados(entrada, saida):",
+              "    # DEF-15: cada vínculo de quarto é comparado apenas com a própria reserva (brid == rid).",
+              "    vinculos = db.session.query(Booked.room_id, Reservations.checkin_date, Reservations.checkout_date).join(",
+              "        Reservations, Booked.brid == Reservations.rid)",
+              "    return {quarto for quarto, c1, c2 in vinculos if _periodos_conflitam(entrada, saida, c1, c2)}"
+            ],
+            "function": "_quartos_ocupados"
+          }
+        ],
+        "revealed": {
+          "stage": "estrutural",
+          "caseId": "CT-012",
+          "commit": {
+            "hash": "ac975b7",
+            "full": "ac975b75be53a0aaf232288d8eb06c4747a7833c",
+            "date": "30/09/2026 09:48",
+            "message": "Etapa 2: testes estruturais guiados por coverage.py"
+          }
+        },
+        "fixedBy": [
+          {
+            "hash": "2d1b2cd",
+            "full": "2d1b2cdbf647981614fdcf985b06979525c00f22",
+            "date": "30/09/2026 09:50",
+            "message": "Corrige DEF-01 e DEF-15: cálculo de quartos ocupados"
+          }
+        ],
+        "mutationAfter": {
+          "hash": "324e29a",
+          "full": "324e29a7142223aef4b64e4f6a5042d25812c128",
+          "date": "30/09/2026 10:02",
+          "message": "Etapa 3: mutação inicial com Cosmic Ray e casos para sobreviventes"
+        }
+      }
     }
   },
-  "studyVersion": "e14bc6e6ee47"
+  "studyVersion": "b203db187004"
 }

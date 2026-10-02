@@ -813,7 +813,7 @@ function renderDetail(keepScroll = false) {
 }
 
 function detailModal() {
-  const content = detail.kind === "mutant" ? mutantDetail(detail.id) : testDetail(detail.id);
+  const content = detail.kind === "mutant" ? mutantDetail(detail.id) : detail.kind === "defect" ? defectDetail(detail.id) : testDetail(detail.id);
   if (!content) return "";
   return `<div class="modal-backdrop" data-modal-backdrop><section class="modal modal-wide" role="dialog" aria-modal="true" aria-label="${e(content.title)}">
     <div class="modal-head"><div><div class="eyebrow">${content.kicker}</div><h2>${content.title}</h2><p>${content.subtitle}</p></div><button type="button" class="icon-btn" data-action="close-detail" title="Fechar">${icon("close")}</button></div>
@@ -865,7 +865,7 @@ function testDetail(id) {
     kicker: `${STAGES[context].label} · ${e(test.requirementId)} ${e(req?.title || "")}`,
     title: `${e(test.id)} · ${e(test.title)}`,
     subtitle: test.function ? `<span class="mono">${e(test.function)}</span>` : e(test.input),
-    body: `<div class="detail-badges"><span class="tag">${e(test.technique)}</span>${test.validity ? `<span class="badge badge-${test.validity === "Válido" ? "green" : "red"}">Cenário ${e(test.validity.toLowerCase())}</span>` : ""}${test.defect ? `<span class="tag tag-red">${e(test.defect)} · ${e(test.defectTitle)}</span>` : ""}</div>
+    body: `<div class="detail-badges"><span class="tag">${e(test.technique)}</span>${test.validity ? `<span class="badge badge-${test.validity === "Válido" ? "green" : "red"}">Cenário ${e(test.validity.toLowerCase())}</span>` : ""}${test.defect ? (defectInfo(test.defect) ? `<button class="tag tag-red tag-link" data-action="open-defect-detail" data-id="${e(test.defect)}" title="Ver onde o defeito acontecia e quando foi corrigido">${e(test.defect)} · ${e(test.defectTitle)} →</button>` : `<span class="tag tag-red">${e(test.defect)} · ${e(test.defectTitle)}</span>`) : ""}</div>
       ${explanationBlock(test, classes)}
       <div class="result-cards">${runCell("Código original", test.original)}${runCell("Código corrigido", test.corrected)}${killedCount ? `<div class="result-card result-none"><span>Mutação (rodada final)</span><strong>${killedCount}</strong><small>mutantes mortos primeiro por este teste</small></div>` : ""}</div>
       <section class="detail-section"><h3>Entrada, resultado esperado e resultado obtido</h3><div class="table-wrap"><table class="io-table"><thead><tr><th>Versão do código</th><th>Entrada</th><th>Resultado esperado</th><th>Resultado obtido</th><th>Observações</th></tr></thead><tbody>${ioRow("Original", test.original)}${ioRow("Corrigido", test.corrected)}</tbody></table></div></section>
@@ -1001,6 +1001,59 @@ function nodeDrawerHtml(graph, node, testId, coverage) {
 
 function diffBlock(m) {
   return `<div class="diff-block"><div class="del"><span>−</span>${e(m.original)}</div><div class="add"><span>+</span>${e(m.mutated)}</div></div>`;
+}
+
+// ------------------------------------------------------------ detalhe de um defeito: onde acontecia e quando foi corrigido
+
+const defectInfo = (id) => state.testCatalog?.defects?.[id] || null;
+
+/** Texto do relatório com `código` e **negrito** (o resto é escapado). */
+function richText(text) {
+  return e(text).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+}
+
+function commitLink(commit, label = commit.hash) {
+  const fork = state.testCatalog?.characterization?.links?.fork || "https://github.com/gabrielfjm/Hotel_Management_System";
+  return `<a class="commit-link" href="${e(fork)}/commit/${e(commit.full)}" target="_blank" rel="noopener noreferrer"><code>${e(label)}</code></a>`;
+}
+
+const STAGE_NAME = { funcional: "Etapa 1 · Teste funcional", estrutural: "Etapa 2 · Teste estrutural" };
+
+function defectDetail(id) {
+  const defect = state.defects.find((item) => item.id === id);
+  const info = defectInfo(id);
+  if (!defect || !info) return null;
+  const test = findTest(info.revealed.caseId);
+  // Revelado pela parte funcional do caso: usa a descrição em linguagem simples do próprio caso.
+  const plainScenario = info.revealed.stage === "funcional" && test;
+  const block = (lines, start, marked) => codeView(lines.join("\n"), start, new Set(marked));
+  const event = (kind, title, when, text) => `<li class="tl-${kind}"><span class="tl-dot"></span><div><strong>${title}</strong><span class="tl-when">${when}</span><p>${text}</p></div></li>`;
+  return {
+    kicker: `Defeito · revelado pelo ${e(info.revealed.caseId)} · corrigido em ${info.fixedBy.map((commit) => e(commit.hash)).join(" e ")}`,
+    title: `${e(defect.id)} · ${e(defect.title)}`,
+    subtitle: "Onde o erro estava no código original, como ficou depois da correção e quando cada coisa aconteceu.",
+    body: `<div class="detail-badges">${badge(defect.severity)}<span class="badge badge-green">Corrigido</span><span class="tag">Função ${e(info.function)}</span></div>
+      <section class="detail-section explain"><div class="explain-summary">${icon("bug")}<div><span>O que acontecia</span><strong>${e(defect.description)}</strong></div></div></section>
+
+      <section class="detail-section"><h3>Linha do tempo</h3><ol class="timeline">
+        ${event("found", `Revelado na ${STAGE_NAME[info.revealed.stage] || info.revealed.stage}`, `${e(info.revealed.commit.date)} · commit ${commitLink(info.revealed.commit)}`, `O caso <button class="link-btn" data-action="open-test" data-id="${e(info.revealed.caseId)}">${e(info.revealed.caseId)}${test ? ` · ${e(test.title)}` : ""}</button> falhou no código original. O teste foi marcado como falha esperada, para provar que o defeito existia.`)}
+        ${info.fixedBy.map((commit) => event("fixed", "Corrigido no fork", `${e(commit.date)} · commit ${commitLink(commit)}`, `“${e(commit.message)}”. ${e(defect.correction.replace(/\s*\(commit [0-9a-f]+\)\.?$/, "."))}`)).join("")}
+        ${event("ok", "Confirmado", "na suíte do código corrigido", `O mesmo ${e(info.revealed.caseId)} agora passa no código corrigido, sem nenhuma mudança no teste.`)}
+        ${event("mut", "Depois, o teste de mutação", `${e(info.mutationAfter.date)} · commit ${commitLink(info.mutationAfter)}`, "A mutação só começou com todos os defeitos corrigidos: os mutantes são gerados a partir do código já sem erros.")}
+      </ol></section>
+
+      <section class="detail-section"><h3>O cenário que revelou o defeito</h3><div class="table-wrap"><table class="io-table scenario-table"><thead><tr><th>Entrada</th><th>Resultado esperado</th><th>Obtido no original</th><th>Obtido no corrigido</th></tr></thead><tbody><tr>${plainScenario ? `<td>${e(test.input)}</td><td>${e(test.expected)}</td><td class="txt-red">${e(test.original?.obtained)}</td>` : `<td>${richText(info.input)}</td><td>${richText(info.expected)}</td><td class="txt-red">${richText(info.obtained)}</td>`}<td>Igual ao esperado</td></tr></tbody></table></div>${plainScenario ? "" : `<p class="detail-hint" style="margin-top:8px">Cenário da ampliação do ${e(info.revealed.caseId)} feita na etapa estrutural.</p>`}</section>
+
+      <section class="detail-section"><h3>Onde acontecia <span class="mono sub">hotel/views.py original · ${e(info.function)}, linha${info.original.marked.length > 1 ? "s" : ""} ${e(info.where.split(";").find((part) => part.includes(`\`${info.function}\``))?.split("`").at(-1).trim() || info.original.marked.join(", "))}</span></h3>
+        <p class="detail-hint">Trecho do código original (tag sut-original). As linhas destacadas são as que causam o erro.</p>
+        ${block(info.original.lines, info.original.start, info.original.marked)}
+        <div class="cause-box"><span>Causa no código</span><p>${richText(info.cause)}</p></div></section>
+
+      <section class="detail-section"><h3>Como ficou depois da correção <span class="mono sub">hotel/views.py corrigido</span></h3>
+        <p class="detail-hint">Trecho do código corrigido. A linha destacada é o comentário que identifica a correção deste defeito.</p>
+        ${info.corrected.map((item) => `<div class="fix-block"><span class="fix-label">${e(item.function)} · linha ${e(item.start)}</span>${block(item.lines, item.start, item.marked)}</div>`).join("")}
+        <div class="cause-box fix"><span>Correção</span><p>${richText(info.fix)}</p></div></section>`
+  };
 }
 
 function mutantDetail(id) {
@@ -1449,18 +1502,46 @@ function mutationHistoryTable() {
 
 function defectsPage() {
   return `${pageHead("Teste baseado em defeitos", "Defeitos encontrados", "Documente evidências, impacto e uma proposta de correção ligada ao caso que revelou o problema.", `<button class="btn btn-primary" data-action="open-defect">${icon("plus")}Novo defeito</button>`)}
-    <section class="panel panel-flush"><div class="panel-head"><div><h2 class="panel-title">Registro de defeitos</h2><div class="panel-subtitle">Evidências para o relatório técnico</div></div></div><div style="padding:14px 16px 0">${filterToolbar("defect-table", "Buscar por ID, título, descrição ou caso...", [
+    ${defectsTimeline()}
+    <section class="panel panel-flush"><div class="panel-head"><div><h2 class="panel-title">Registro de defeitos</h2><div class="panel-subtitle">Clique em um defeito para ver onde ele estava no código e como foi corrigido</div></div></div><div style="padding:14px 16px 0">${filterToolbar("defect-table", "Buscar por ID, título, descrição ou caso...", [
       { key: "severity", label: "Todas as severidades", options: ["Alta", "Média", "Baixa"] },
       { key: "status", label: "Todos os status", options: ["Aberto", "Em correção", "Fechado"] },
       { key: "case", label: "Todos os casos", options: state.testCases.map((c) => ({ value: c.id, label: `${c.id} — ${c.title}` })) }
     ])}</div><div class="table-wrap filter-scope" id="defect-table">${defectsTable()}<div class="filter-empty" hidden>Nenhum defeito corresponde aos filtros.</div></div></section>`;
 }
 
+/** Do momento em que cada defeito apareceu até a mutação, a partir do histórico de commits do fork. */
+function defectsTimeline() {
+  const infos = state.defects.map((defect) => [defect, defectInfo(defect.id)]).filter(([, info]) => info);
+  if (!infos.length) return "";
+  const chips = (list) => list.map(([defect]) => `<button class="tag tag-red tag-link" data-action="open-defect-detail" data-id="${e(defect.id)}" title="${e(defect.title)}">${e(defect.id)}</button>`).join(" ");
+  const byStage = (stage) => infos.filter(([, info]) => info.revealed.stage === stage);
+  const sortable = (date) => `${date.slice(6, 10)}${date.slice(3, 5)}${date.slice(0, 2)}${date.slice(11)}`; // dd/mm/aaaa hh:mm
+  const fixes = [...new Map(infos.flatMap(([, info]) => info.fixedBy.map((commit) => [commit.hash, commit]))).values()]
+    .sort((a, b) => sortable(a.date).localeCompare(sortable(b.date)));
+  const stageStep = (stage) => {
+    const list = byStage(stage);
+    if (!list.length) return "";
+    const commit = list[0][1].revealed.commit;
+    return `<div class="dt-step found"><span class="dt-num">${stage === "funcional" ? 1 : 2}</span><div><strong>${STAGE_NAME[stage]}</strong><small>${e(commit.date)} · ${commitLink(commit)}</small><p>${list.length} defeito${list.length > 1 ? "s" : ""} revelado${list.length > 1 ? "s" : ""}</p><div class="dt-chips">${chips(list)}</div></div></div>`;
+  };
+  const mutation = infos[0][1].mutationAfter;
+  return `<section class="panel defects-timeline"><div class="panel-head"><div><h2 class="panel-title">Quando cada defeito apareceu e foi resolvido</h2><div class="panel-subtitle">Pelo histórico de commits do fork. Clique em um defeito para ver onde ele estava no código.</div></div><span class="badge badge-green">${infos.length} de ${state.defects.length} corrigidos</span></div>
+    <div class="dt-row">
+      ${stageStep("funcional")}${stageStep("estrutural")}
+      <div class="dt-step fixed"><span class="dt-num">${icon("shield")}</span><div><strong>Correção no fork</strong><small>${fixes.length} commits, antes da mutação</small><ul>${fixes.map((commit) => `<li>${commitLink(commit)} <span>${e(commit.date)}</span><div>${e(commit.message.replace(/:.*$/, ""))}</div></li>`).join("")}</ul></div></div>
+      <div class="dt-step mut"><span class="dt-num">3</span><div><strong>Etapa 3 · Teste de mutação</strong><small>${e(mutation.date)} · ${commitLink(mutation)}</small><p>Começou com todos os defeitos já corrigidos: a mutação usa o código corrigido.</p></div></div>
+    </div></section>`;
+}
+
 function defectsTable() {
   if (!state.defects.length) return emptyState("Nenhum defeito registrado", "Falhas de execução podem ser documentadas aqui.");
-  return `<table><thead><tr><th>ID</th><th>Defeito</th><th>Caso originador</th><th>Severidade</th><th>Status</th><th>Proposta de correção</th><th></th></tr></thead><tbody>${state.defects.map((d) => {
+  const detailed = state.defects.some((d) => defectInfo(d.id));
+  return `<table class="${detailed ? "click-table" : ""}"><thead><tr><th>ID</th><th>Defeito</th><th>Caso originador</th>${detailed ? "<th>Onde</th><th>Revelado</th><th>Corrigido em</th>" : ""}<th>Severidade</th><th>Status</th>${detailed ? "" : "<th>Proposta de correção</th>"}<th></th></tr></thead><tbody>${state.defects.map((d) => {
     const tc = state.testCases.find((x) => x.id === d.testCaseId);
-    return `<tr class="filter-item" data-query="${e(`${d.id} ${d.title} ${d.description} ${d.correction} ${d.testCaseId} ${tc?.title || ""}`.toLowerCase())}" data-severity="${e(d.severity)}" data-status="${e(d.status)}" data-case="${e(d.testCaseId)}"><td class="id-cell">${e(d.id)}</td><td class="main-cell">${e(d.title)}<div class="sub-cell">${e(d.description)}</div></td><td><span class="tag">${e(d.testCaseId)}</span><div class="sub-cell">${e(tc?.title || "Caso não encontrado")}</div></td><td>${badge(d.severity)}</td><td>${badge(d.status)}</td><td>${e(d.correction)}</td><td><button class="icon-btn" data-action="edit-defect" data-id="${d.id}">${icon("edit")}</button></td></tr>`;
+    const info = defectInfo(d.id);
+    const extra = detailed ? `<td class="mono">${e(info?.function || "—")}<div class="sub-cell">linha ${e(info?.original.marked[0] ?? "—")} do original</div></td><td>${info ? `${e(STAGE_NAME[info.revealed.stage]?.split(" · ")[1] || info.revealed.stage)}<div class="sub-cell">${e(info.revealed.commit.date)}</div>` : "—"}</td><td>${info ? info.fixedBy.map((commit) => `${commitLink(commit)}<div class="sub-cell">${e(commit.date)}</div>`).join("") : "—"}</td>` : "";
+    return `<tr class="filter-item ${info ? "clickable" : ""}" ${info ? `data-action="open-defect-detail" data-id="${e(d.id)}"` : ""} data-query="${e(`${d.id} ${d.title} ${d.description} ${d.correction} ${d.testCaseId} ${tc?.title || ""} ${info?.function || ""}`.toLowerCase())}" data-severity="${e(d.severity)}" data-status="${e(d.status)}" data-case="${e(d.testCaseId)}"><td class="id-cell">${e(d.id)}</td><td class="main-cell">${e(d.title)}<div class="sub-cell">${e(d.description)}</div></td><td><span class="tag">${e(d.testCaseId)}</span><div class="sub-cell">${e(tc?.title || "Caso não encontrado")}</div></td>${extra}<td>${badge(d.severity)}</td><td>${badge(d.status)}</td>${detailed ? "" : `<td>${e(d.correction)}</td>`}<td><button class="icon-btn" data-action="edit-defect" data-id="${d.id}" title="Editar">${icon("edit")}</button></td></tr>`;
   }).join("")}</tbody></table>`;
 }
 
@@ -1732,6 +1813,8 @@ app.addEventListener("click", (event) => {
     render();
     return;
   }
+  // Links externos (commits, GitHub) dentro de linhas clicáveis abrem só o link.
+  if (event.target.closest("a[href]:not([data-action]):not([data-route])")) return;
   const target = event.target.closest("[data-route], [data-action]");
   if (!target) return;
   const nextRoute = target.dataset.route;
@@ -1739,6 +1822,7 @@ app.addEventListener("click", (event) => {
   const { action, id, type } = target.dataset;
   const actions = {
     "zoom-image": () => openLightbox(target.dataset.src, target.dataset.caption),
+    "open-defect-detail": () => { closeNodeDrawer(); detail = { kind: "defect", id }; detailGraphId = ""; renderDetail(); },
     "open-test": () => { closeNodeDrawer(); detail = { kind: "test", id, context: STAGES[route] ? route : detail?.context }; detailGraphId = ""; renderDetail(); },
     "open-mutant": () => { detail = { kind: "mutant", id }; renderDetail(); },
     "detail-graph": () => { closeNodeDrawer(); detailGraphId = id; renderDetail(true); },
