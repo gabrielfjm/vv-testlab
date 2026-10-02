@@ -86,7 +86,8 @@ Testes (pytest):
 
 COMO EXECUTAR
 -------------
-Requer uv (https://docs.astral.sh/uv/). Na pasta estudo-completo/1-sistema-testado-hotel/:
+Requer o uv: https://docs.astral.sh/uv/
+Na pasta estudo-completo/1-sistema-testado-hotel/:
   Windows:        .\setup_local.ps1   e depois   .\etapas.ps1
   Linux / macOS:  ./setup.sh          e depois   ./etapas.sh
 O etapas roda as três etapas (no código original e no corrigido) e grava as evidências.

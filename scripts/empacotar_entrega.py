@@ -5,6 +5,8 @@ Em estudo-completo/: o fork do hotel (com .git), a ferramenta V&V TestLab e as a
 """
 
 import re
+import subprocess
+import tempfile
 import zlib
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -14,6 +16,8 @@ TOPO = Path("entrega-vv-gabriel-meira")
 ESTUDO = TOPO / "estudo-completo"
 SAIDA = ROOT / "output" / "entrega-vv-gabriel-meira.zip"
 HOTEL = ROOT / "output" / "hotel-management-testado"
+FORK = "https://github.com/gabrielfjm/Hotel_Management_System.git"
+UPSTREAM = "https://github.com/CrystalWang1225/Hotel_Management_System.git"
 IGNORAR = {".venv", ".venv-mutation", ".pytest_cache", "__pycache__", ".sut-original", ".vvtestlab", "node_modules"}
 IGNORAR_ARQUIVOS = {".coverage", "hotel_local.db", ".DS_Store"}
 # Ferramenta: arquivos soltos e pastas, com os mesmos caminhos do repositório.
@@ -34,9 +38,18 @@ def main():
         z.writestr(str(TOPO / "LINKS-E-DESCRICAO.txt"), texto.encode("utf-8-sig"))
         # estudo-completo/
         z.write(ROOT / "output/LEIA-ME-ENTREGA.md", ESTUDO / "LEIA-ME.md")
-        for p in sorted(HOTEL.rglob("*")):
-            if p.is_file() and incluir(p.relative_to(HOTEL)):
-                z.write(p, ESTUDO / "1-sistema-testado-hotel" / p.relative_to(HOTEL))
+        # Fork: um clone novo (índice limpo, fins de linha iguais aos commits), com os remotos apontando para o GitHub.
+        destino_hotel = ESTUDO / "1-sistema-testado-hotel"
+        with tempfile.TemporaryDirectory() as temporario:
+            clone = Path(temporario) / "hotel"
+            git = lambda *args: subprocess.run(["git", "-c", "core.autocrlf=false", *args], capture_output=True, check=True)
+            git("clone", "--quiet", "--no-hardlinks", str(HOTEL), str(clone))
+            git("-C", str(clone), "config", "core.autocrlf", "false")
+            git("-C", str(clone), "remote", "set-url", "origin", FORK)
+            git("-C", str(clone), "remote", "add", "upstream", UPSTREAM)
+            for p in sorted(clone.rglob("*")):
+                if p.is_file():
+                    z.write(p, destino_hotel / p.relative_to(clone))
         ferramenta = [ROOT / nome for nome in FERRAMENTA_ARQUIVOS]
         for pasta in FERRAMENTA_PASTAS:
             ferramenta += sorted(p for p in (ROOT / pasta).rglob("*") if p.is_file())
