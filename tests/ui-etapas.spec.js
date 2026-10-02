@@ -47,8 +47,16 @@ test("a página final explica a ferramenta, a integração e cada item do menu",
   const menu = [...document.querySelectorAll(".nav-item")].map((item) => item.dataset.route).filter((key) => key !== "sobre");
   expect(guided.sort()).toEqual(menu.sort());
   expect(content.querySelectorAll(".faq details")).toHaveLength(6);
-  expect(content.querySelector(".presenter-btn.restart").dataset.route).toBe("home");
-  click(content.querySelector('.guide-card[data-route="dashboard"]'));
+  click(content.querySelector('.presenter-btn.next[data-route="obrigado"]'));
+  const thanks = document.querySelector(".content");
+  expect(thanks.querySelector(".thanks-hero h1").textContent).toBe("Obrigado!");
+  expect(thanks.querySelector(".thanks-numbers").textContent).toContain("95%");
+  const links = [...thanks.querySelectorAll(".person-links a")].map((link) => link.getAttribute("href"));
+  expect(links).toEqual(["http://lattes.cnpq.br/0701955386251459", "https://www.linkedin.com/in/leo-natan-paschoal/", "https://gabrielfjm.com.br", "https://www.linkedin.com/in/gabrielfjm/"]);
+  expect([...thanks.querySelectorAll(".thanks-logos img")].map((img) => img.getAttribute("alt"))).toEqual(["Pontifícia Universidade Católica do Paraná", "Coordenação de Aperfeiçoamento de Pessoal de Nível Superior"]);
+  // Última página do roteiro: o botão final volta ao início.
+  expect(thanks.querySelector(".presenter-btn.restart").dataset.route).toBe("home");
+  click(document.querySelector('.nav-item[data-route="dashboard"]'));
 });
 
 test("a visão geral resume as três etapas", () => {

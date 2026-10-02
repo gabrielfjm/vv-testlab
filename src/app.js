@@ -115,7 +115,10 @@ function icon(name) {
     fork: '<circle cx="6" cy="5" r="2"/><circle cx="18" cy="5" r="2"/><circle cx="12" cy="19" r="2"/><path d="M6 7v1a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V7M12 11v6"/>',
     external: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
     layers: '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
-    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    linkedin: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>',
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+    lattes: '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h7M9 8h3"/>'
   };
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.info}</svg>`;
 }
@@ -137,7 +140,7 @@ const navGroups = [
     ["defects", "bug", "Defeitos"],
     ["data", "data", "Dados e exportação"]
   ]],
-  ["Ajuda", [["sobre", "info", "Como a ferramenta funciona"]]]
+  ["Encerramento", [["sobre", "info", "Como a ferramenta funciona"], ["obrigado", "spark", "Agradecimentos"]]]
 ];
 
 /** Vínculo do trabalho: o mestrado na PUCPR e a bolsa da CAPES (logos em public/instituicoes/). */
@@ -270,7 +273,7 @@ function mutationData() {
 // ------------------------------------------------------------ página inicial: caracterização do sistema
 
 /** Ordem da apresentação: o projeto → visão geral dos testes → as três etapas. */
-const PRESENTATION = [["home", "O projeto"], ["dashboard", "Visão geral dos testes"], ["funcional", "Teste funcional"], ["estrutural", "Teste estrutural"], ["mutacao", "Teste de mutação"], ["sobre", "Como a ferramenta funciona"]];
+const PRESENTATION = [["home", "O projeto"], ["dashboard", "Visão geral dos testes"], ["funcional", "Teste funcional"], ["estrutural", "Teste estrutural"], ["mutacao", "Teste de mutação"], ["sobre", "Como a ferramenta funciona"], ["obrigado", "Agradecimentos"]];
 
 function presenterNav() {
   const index = PRESENTATION.findIndex(([key]) => key === route);
@@ -426,8 +429,52 @@ const MENU_GUIDE = [
     ["integration", "link", "Integração Python", "A conexão com o repositório do hotel: estado da ponte, comando para ligá-la e o histórico de sincronizações e de mutação.", "Verificar ponte, Executar e sincronizar (pytest + cobertura) e Executar mutação. Só funciona com a ferramenta rodando no computador."],
     ["defects", "bug", "Defeitos", "Os defeitos encontrados, com severidade, status, o caso que revelou cada um e a proposta de correção.", "Registrar ou editar defeito. O número ao lado do menu conta só os abertos: está em 0 porque todos foram corrigidos."],
     ["data", "data", "Dados e exportação", "As saídas e cópias do projeto.", "Gerar o relatório em PDF ou Markdown, exportar backup JSON e casos em CSV, importar backup e recarregar o estudo oficial."]
+  ]],
+  ["Encerramento", "o fim da apresentação", [
+    ["obrigado", "spark", "Agradecimentos", "O encerramento: os números do trabalho, o professor da disciplina, o autor e o apoio da PUCPR e da CAPES.", "abrir o Lattes e o LinkedIn do professor e do autor, e os links da ferramenta, do fork e do relatório."]
   ]]
 ];
+
+/** Pessoas do encerramento. O Lattes do professor é o link permanente da lista de docentes do PPGIa. */
+const CREDITS = [
+  { role: "Professor da disciplina", initials: "LP", name: "Prof. Dr. Leo Natan Paschoal", detail: "Verificação e Validação de Software · PPGIa · PUCPR", links: [["lattes", "Currículo Lattes", "http://lattes.cnpq.br/0701955386251459"], ["linkedin", "LinkedIn", "https://www.linkedin.com/in/leo-natan-paschoal/"]] },
+  { role: "Desenvolvido por", initials: "GM", name: "Gabriel Felipe Jess Meira", detail: "Mestrando · PUCPR · Bolsista CAPES", links: [["globe", "Currículo", "https://gabrielfjm.com.br"], ["linkedin", "LinkedIn", "https://www.linkedin.com/in/gabrielfjm/"]], author: true }
+];
+
+function thanksPage() {
+  const evolution = evolutionRows();
+  const last = evolution.at(-1) || {};
+  const finalRun = mutationData().runs.at(-1);
+  const cases = new Set(Object.keys(STAGES).flatMap((stage) => stageTests(stage).map((test) => test.id))).size;
+  const c = state.testCatalog?.characterization;
+  const numbers = [[cases, "casos de teste", "os mesmos nas 3 etapas"], [state.defects.length, "defeitos corrigidos", "encontrados pelos testes"], [pct(last.branches), "dos desvios", "cobertura estrutural"], [pct(finalRun?.score), "escore de mutação", `${finalRun?.killed || 0} de ${finalRun?.total || 0} mutantes`]];
+  return `<section class="thanks-hero">
+      <div class="thanks-glow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="hero-eyebrow">Encerramento · Verificação e Validação de Software</div>
+      <h1>Obrigado!</h1>
+      <p class="thanks-lead">Teste de software de terceiros: <strong>Hotel Management System</strong>, do funcional ao teste de mutação.</p>
+      <div class="thanks-numbers">${numbers.map(([value, label, sub]) => `<div><strong>${value}</strong><span>${label}</span><small>${sub}</small></div>`).join("")}</div>
+    </section>
+
+    <div class="thanks-people">${CREDITS.map((person) => `<section class="person-card ${person.author ? "author" : ""}">
+      <span class="person-role">${person.role}</span>
+      <div class="person-main"><span class="person-avatar">${person.initials}</span><div><h2>${person.name}</h2><p>${person.detail}</p></div></div>
+      <div class="person-links">${person.links.map(([ico, label, url]) => extLink(url, `${icon(ico)}<span>${label}</span>`, "btn")).join("")}</div>
+    </section>`).join("")}</div>
+
+    <section class="thanks-inst">
+      <span class="inst-kicker">Com o apoio de</span>
+      <div class="inst-band-logos thanks-logos">${INSTITUTIONS.map((inst) => `<a href="${inst.url}" target="_blank" rel="noopener noreferrer" title="${inst.name}"><img src="${inst.color}" alt="${inst.name}" class="inst-${inst.key}"></a>`).join('<span class="inst-sep"></span>')}</div>
+      <p class="thanks-message">Agradeço ao Prof. Leo Natan Paschoal pela disciplina e pelas orientações, à Pontifícia Universidade Católica do Paraná pela formação e à CAPES pela bolsa que torna este mestrado possível.</p>
+      ${c?.instituicional ? `<p class="inst-ack">${e(c.instituicional.agradecimento)}</p>` : ""}
+    </section>
+
+    <section class="thanks-end">
+      <h2>Perguntas?</h2>
+      <p>Tudo o que foi apresentado está publicado e pode ser conferido:</p>
+      <div class="about-links">${extLink("https://gabrielfjm.github.io/vv-testlab/", `${icon("dashboard")}<span>Ferramenta online</span>`, "btn btn-primary")}${extLink("https://github.com/gabrielfjm/Hotel_Management_System", `${icon("fork")}<span>Fork com os testes</span>`)}${extLink("https://github.com/gabrielfjm/Hotel_Management_System/blob/main/docs/relatorio-tecnico.pdf", `${icon("requirement")}<span>Relatório técnico</span>`)}${extLink("https://github.com/gabrielfjm/vv-testlab", `${icon("github")}<span>Código da ferramenta</span>`)}</div>
+    </section>`;
+}
 
 function aboutPage() {
   const node = (ico, title, text, extra = "") => `<div class="lane-node ${extra}"><span class="metric-icon">${icon(ico)}</span><strong>${title}</strong><small>${text}</small></div>`;
@@ -1516,7 +1563,7 @@ function formatDate(date) {
 function render() {
   const graphScroll = [...document.querySelectorAll(".cfg-scroll")].map((element) => [element.scrollTop, element.scrollLeft]);
   const pageScroll = window.scrollY || 0;
-  const pages = { home: homePage, sobre: aboutPage, dashboard: dashboardPage, funcional: () => stagePage("funcional"), estrutural: () => stagePage("estrutural"), mutacao: () => stagePage("mutacao"), requirements: requirementsPage, cases: casesPage, structural: structuralPage, traceability: traceabilityPage, execution: executionPage, integration: integrationPage, defects: defectsPage, data: dataPage };
+  const pages = { home: homePage, sobre: aboutPage, obrigado: thanksPage, dashboard: dashboardPage, funcional: () => stagePage("funcional"), estrutural: () => stagePage("estrutural"), mutacao: () => stagePage("mutacao"), requirements: requirementsPage, cases: casesPage, structural: structuralPage, traceability: traceabilityPage, execution: executionPage, integration: integrationPage, defects: defectsPage, data: dataPage };
   app.innerHTML = shell((pages[route] || homePage)() + presenterNav());
   document.querySelectorAll(".cfg-scroll").forEach((element, index) => {
     if (graphScroll[index]) [element.scrollTop, element.scrollLeft] = graphScroll[index];
