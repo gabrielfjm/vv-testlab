@@ -141,10 +141,21 @@ tr:hover td { background: #fdfdff; }
 .req-desc { margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.55; }
 .req-links { display: flex; gap: 5px; margin-top: 9px; }
 
-.trace-grid { display: grid; grid-template-columns: 1fr .85fr 1.1fr 1fr .72fr .72fr; min-width: 1080px; }
+/* Colunas: requisito · classe · caso · grafo · execução · defeito. O defeito recebe espaço para o título inteiro. */
+.trace-grid { display: grid; grid-template-columns: minmax(96px, .75fr) minmax(130px, 1fr) minmax(150px, 1.15fr) minmax(120px, .9fr) minmax(96px, .62fr) minmax(150px, 1.15fr); min-width: 880px; }
 .trace-header > div { padding: 10px 12px; color: #72798a; background: #fafbfc; font-size: 9px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
 .trace-row { border-top: 1px solid var(--line); }
-.trace-row > div { min-width: 0; padding: 13px 12px; border-right: 1px solid #f0f1f5; font-size: 10px; line-height: 1.4; }
+.trace-row > div { min-width: 0; padding: 13px 12px; border-right: 1px solid #f0f1f5; font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; }
+.trace-row > div:last-child { border-right: 0; }
+.trace-row > div:last-child .trace-link + .trace-link { margin-top: 8px; }
+@media (max-width: 760px) {
+  .trace-grid { min-width: 0; }
+  .trace-header { display: none; }
+  .trace-row { grid-template-columns: 1fr 1fr; gap: 0; }
+  .trace-row > div { padding: 10px 12px; border-right: 0; border-bottom: 1px dashed #eef0f4; }
+  .trace-row > div::before { content: attr(data-label); display: block; margin-bottom: 3px; color: #8a91a3; font-size: 8.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; }
+  .trace-row > div:last-child { grid-column: 1 / -1; border-bottom: 0; }
+}
 .trace-item { font-weight: 700; }
 .trace-item small { display: block; margin-bottom: 3px; color: var(--primary); font-size: 9px; font-weight: 800; }
 .trace-link { display: block; width: 100%; padding: 0; border: 0; color: inherit; background: transparent; text-align: left; }
