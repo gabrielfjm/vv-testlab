@@ -136,7 +136,8 @@ const navGroups = [
     ["integration", "link", "Integração Python"],
     ["defects", "bug", "Defeitos"],
     ["data", "data", "Dados e exportação"]
-  ]]
+  ]],
+  ["Ajuda", [["sobre", "info", "Como a ferramenta funciona"]]]
 ];
 
 /** Vínculo do trabalho: o mestrado na PUCPR e a bolsa da CAPES (logos em public/instituicoes/). */
@@ -269,7 +270,7 @@ function mutationData() {
 // ------------------------------------------------------------ página inicial: caracterização do sistema
 
 /** Ordem da apresentação: o projeto → visão geral dos testes → as três etapas. */
-const PRESENTATION = [["home", "O projeto"], ["dashboard", "Visão geral dos testes"], ["funcional", "Teste funcional"], ["estrutural", "Teste estrutural"], ["mutacao", "Teste de mutação"]];
+const PRESENTATION = [["home", "O projeto"], ["dashboard", "Visão geral dos testes"], ["funcional", "Teste funcional"], ["estrutural", "Teste estrutural"], ["mutacao", "Teste de mutação"], ["sobre", "Como a ferramenta funciona"]];
 
 function presenterNav() {
   const index = PRESENTATION.findIndex(([key]) => key === route);
@@ -279,7 +280,7 @@ function presenterNav() {
   return `<nav class="presenter-nav" aria-label="Ordem da apresentação">
     ${prev ? `<button class="presenter-btn" data-route="${prev[0]}"><small>← Anterior</small><strong>${prev[1]}</strong></button>` : "<span></span>"}
     <div class="presenter-dots">${PRESENTATION.map(([key, label]) => `<button class="presenter-dot ${key === route ? "active" : ""}" data-route="${key}" title="${label}" aria-label="${label}"></button>`).join("")}</div>
-    ${next ? `<button class="presenter-btn next" data-route="${next[0]}"><small>Próximo →</small><strong>${next[1]}</strong></button>` : "<span></span>"}
+    ${next ? `<button class="presenter-btn next" data-route="${next[0]}"><small>Próximo →</small><strong>${next[1]}</strong></button>` : `<button class="presenter-btn next restart" data-route="${PRESENTATION[0][0]}"><small>Fim · voltar ao início ↺</small><strong>${PRESENTATION[0][1]}</strong></button>`}
   </nav>`;
 }
 
@@ -401,6 +402,108 @@ function homePage() {
     ${homeSection(7, "O que foi testado", "Três requisitos da reserva de quartos, com as três técnicas na ordem exigida.")}
     <div class="scope-grid home-scope">${state.requirements.map((req) => `<div class="scope-item"><span class="req-index">${e(req.id)}</span><strong>${e(req.title)}</strong><span class="sub-cell">${e(req.description)}</span></div>`).join("")}</div>
     <div class="flow">${c.etapas.map(([name, text, tool], index) => `<button class="flow-step" data-route="${stageKeys[index]}"><span class="flow-num">${index + 1}</span><strong>${e(name)}</strong><p>${e(text)}</p><span class="flow-foot"><span class="tag">${e(tool)}</span><span class="sub-cell">${stageTests(stageKeys[index]).length} casos</span></span></button>${index < c.etapas.length - 1 ? `<span class="flow-arrow">${icon("arrow")}</span>` : ""}`).join("")}</div>`;
+}
+
+// ------------------------------------------------------------ página "Como a ferramenta funciona"
+
+/** Guia do menu: [rota, ícone, nome, o que mostra, o que dá para fazer]. */
+const MENU_GUIDE = [
+  ["Projeto", "a história do trabalho", [
+    ["home", "home", "O projeto", "O sistema que foi testado: o que ele faz, de onde vem, funcionalidades, métricas de código, arquitetura, telas e os links do GitHub.", "ampliar as telas do sistema e abrir o repositório original e o fork no GitHub. É a abertura da apresentação."],
+    ["dashboard", "dashboard", "Visão geral dos testes", "As três etapas em números: casos, defeitos, cobertura e escore de mutação, com a tabela de evolução da suíte.", "Clique no cartão de uma etapa para abrir a página dela."]
+  ]],
+  ["Etapas de teste", "o resultado de cada técnica", [
+    ["funcional", "cases", "Teste funcional", "Os 15 casos derivados da especificação, sem olhar o código (classes de equivalência e valor limite), com o resultado no código original e no corrigido.", "Filtre por requisito, técnica ou resultado. Clique num caso para ver o cenário passo a passo, as assertivas e o código pytest."],
+    ["estrutural", "graph", "Teste estrutural", "Os casos reaproveitados para percorrer o código, a cobertura de comandos e desvios antes e depois da etapa e as ampliações feitas.", "Clique num caso para ver o grafo de fluxo com o caminho que ele percorreu; clique num nó para ler o trecho do código."],
+    ["mutacao", "bug", "Teste de mutação", "O cálculo do escore (mutantes mortos ÷ gerados), as duas rodadas do Cosmic Ray e a lista dos mutantes.", "Filtre os sobreviventes. Clique num mutante para ver a mudança no código e qual teste o matou."]
+  ]],
+  ["Gestão", "o cadastro por trás das páginas", [
+    ["requirements", "requirement", "Requisitos", "As três funcionalidades testadas, cada uma com o nome da função correspondente no código.", "Editar um requisito. A ferramenta não deixa criar um quarto: o recorte do trabalho é de três."],
+    ["cases", "cases", "Cenários e casos", "As classes de equivalência (válidas e inválidas) e a tabela de casos com entrada, classe e resultado esperado.", "Criar classe ou caso e usar o gerador de valor limite, que monta os pontos mín−1, mín, mín+1, máx−1, máx e máx+1."],
+    ["structural", "graph", "Grafos estruturais", "Os grafos de fluxo das funções do recorte (nós, arestas e caminhos simples) e o quanto cada caso percorreu.", "Escolher a função e o caso. Com a ponte ligada, \"Analisar código\" redesenha os grafos a partir do código-fonte."],
+    ["traceability", "trace", "Rastreabilidade", "A matriz que liga requisito → classe → caso → execução → defeito, nos dois sentidos.", "Filtrar lacunas (requisito sem caso, caso sem execução) e clicar em qualquer item para abri-lo."],
+    ["execution", "play", "Execução e métricas", "Cada execução dos testes (manual ou vinda do pytest) e as métricas de cada etapa: tamanho da suíte, cobertura e mutação.", "Registrar uma execução ou uma métrica à mão."],
+    ["integration", "link", "Integração Python", "A conexão com o repositório do hotel: estado da ponte, comando para ligá-la e o histórico de sincronizações e de mutação.", "Verificar ponte, Executar e sincronizar (pytest + cobertura) e Executar mutação. Só funciona com a ferramenta rodando no computador."],
+    ["defects", "bug", "Defeitos", "Os defeitos encontrados, com severidade, status, o caso que revelou cada um e a proposta de correção.", "Registrar ou editar defeito. O número ao lado do menu conta só os abertos: está em 0 porque todos foram corrigidos."],
+    ["data", "data", "Dados e exportação", "As saídas e cópias do projeto.", "Gerar o relatório em PDF ou Markdown, exportar backup JSON e casos em CSV, importar backup e recarregar o estudo oficial."]
+  ]]
+];
+
+function aboutPage() {
+  const node = (ico, title, text, extra = "") => `<div class="lane-node ${extra}"><span class="metric-icon">${icon(ico)}</span><strong>${title}</strong><small>${text}</small></div>`;
+  const arrow = (both = false) => `<span class="lane-arrow ${both ? "both" : ""}">${icon("arrow")}</span>`;
+  const step = (n, button, endpoint, text) => `<li><span class="flow-num">${n}</span><div><strong>${button}</strong>${endpoint ? `<code>${endpoint}</code>` : ""}<p>${text}</p></div></li>`;
+  const chain = [["REQ-01", "Requisito", "Reservar quartos"], ["CE-12", "Classe inválida", "menos de 1 hóspede"], ["CT-009", "Caso de teste", "reserva com 0 hóspedes"], ["Execução", "pytest", "falhou no código original"], ["DEF-03", "Defeito", "corrigido no fork"]];
+  const faq = [
+    ["A ferramenta testa o sistema sozinha?", "Não. Quem testa é o pytest, no repositório do hotel. A ferramenta organiza o trabalho, manda o pytest rodar pela ponte e mostra os resultados ligados aos casos."],
+    ["Por que existe a tal \"ponte\"?", "Por segurança, um site não consegue abrir pastas nem executar programas no computador. A ponte é um programa Python pequeno que roda na sua máquina e faz isso no lugar do navegador, aceitando conexões só do próprio computador."],
+    ["Os números foram digitados à mão?", "Não. Eles vêm das evidências geradas pelo pytest, coverage.py e Cosmic Ray (pasta evidencias/ do fork), que um script transforma no estudo publicado."],
+    ["Por que a Integração Python não funciona no site online?", "O site está no GitHub Pages, e a ponte só existe no computador que tem o repositório do hotel. Online você vê os resultados; com a ferramenta rodando no computador, dá para executar tudo de novo."],
+    ["Se eu mudar algo no site, todo mundo vê?", "Não. As mudanças ficam só no seu navegador. Para voltar ao estudo oficial, use Dados e exportação → Carregar estudo oficial."],
+    ["Como o pytest sabe a qual caso um teste pertence?", "Pelo identificador CT-xxx no nome da função (por exemplo, test_CT_009_...) ou pelo marcador @pytest.mark.vv_case(\"CT-009\"). O plugin da ferramenta escreve esse número no relatório JUnit, e a ferramenta liga o resultado ao caso."]
+  ];
+  return `<section class="about-hero">
+      <div>
+        <div class="eyebrow">Como a ferramenta funciona</div>
+        <h1>V&amp;V TestLab</h1>
+        <p class="subtitle">Uma ferramenta web, feita para este trabalho, que organiza o projeto de testes em um só lugar: os requisitos, os casos, as execuções do pytest, a cobertura, os mutantes e os defeitos, todos ligados entre si.</p>
+      </div>
+      <div class="about-cards">
+        <div><span>O que é</span><strong>Um painel de gestão dos testes</strong><p>Mostra o que foi testado, como e com qual resultado, do requisito até o defeito.</p></div>
+        <div><span>Para que serve</span><strong>Rastrear e explicar</strong><p>Cada resultado aponta para o caso, a classe e o requisito que o originaram.</p></div>
+        <div><span>O que ela não é</span><strong>Não substitui o pytest</strong><p>Os testes vivem no repositório do hotel; a ferramenta executa e lê os resultados deles.</p></div>
+      </div>
+    </section>
+
+    ${homeSection(1, "Como as peças se conectam", "A ferramenta tem dois modos: ao vivo, ligada ao repositório pelo seu computador, e publicada, lendo o estudo pronto.")}
+    <section class="panel lanes">
+      <div class="lane"><div class="lane-title"><span class="badge badge-green">Ao vivo</span><small>no computador que tem o repositório</small></div>
+        <div class="lane-row">${node("cases", "Repositório do hotel", "tests/ com os casos em pytest")}${arrow(true)}${node("link", "Ponte local", "vv_bridge.py · 127.0.0.1:8765", "accent")}${arrow(true)}${node("dashboard", "V&amp;V TestLab", "no navegador (npm run dev)")}</div></div>
+      <div class="lane"><div class="lane-title"><span class="badge badge-purple">Publicado</span><small>este site, no GitHub Pages</small></div>
+        <div class="lane-row">${node("data", "Evidências", "evidencias/ do fork (pytest, cobertura, mutação)")}${arrow()}${node("settings", "Script", "gerar_catalogo_testes.py junta tudo")}${arrow()}${node("requirement", "estudo-hotel.json", "o estudo completo, num arquivo", "accent")}${arrow()}${node("github", "GitHub Pages", "carrega o estudo ao abrir")}</div></div>
+    </section>
+
+    ${homeSection(2, "A integração, passo a passo", "O que acontece quando cada botão da página Integração Python é usado. Entre parênteses, o pedido que a ferramenta faz à ponte.")}
+    <div class="grid-2 home-grid">
+      <section class="panel"><div class="panel-body"><ol class="steps">
+        ${step(0, "Ligar a ponte", "", "Na pasta do fork, <code>.\\iniciar-integracao.ps1</code> liga a ponte no código corrigido; com <code>-Versao original</code>, no código original, para os defeitos aparecerem como falhas.")}
+        ${step(1, "Verificar ponte", "GET /health", "Confirma que a ponte está ligada e informa o Python usado e se pytest, cobertura e Cosmic Ray estão instalados.")}
+        ${step(2, "Executar e sincronizar", "POST /run", "A ponte roda o pytest com cobertura. O plugin grava o CT-xxx de cada teste no relatório JUnit. A ferramenta cria uma execução para cada caso, atualiza a rastreabilidade, abre um defeito para cada falha (se configurado) e guarda a cobertura como métrica da etapa atual. Testes sem CT aparecem como \"não vinculados\".")}
+        ${step(3, "Executar mutação", "POST /mutation", "A ponte roda o Cosmic Ray (cerca de 4 minutos para os 141 mutantes), conta mortos e sobreviventes e devolve o escore, que vira uma métrica da etapa baseada em defeitos.")}
+        ${step(4, "Analisar código", "POST /graphs", "Em Grafos estruturais: a ponte lê o código das funções dos requisitos, sem executá-lo, e devolve os grafos de fluxo (nós, arestas e caminhos).")}
+      </ol></div></section>
+      <section class="panel"><div class="panel-head"><div><h2 class="panel-title">Segurança da ponte</h2><div class="panel-subtitle">Por que ela pode rodar no computador sem risco</div></div></div>
+        <div class="panel-body check-list">
+          <div class="check-item">${icon("shield")}<div><strong>Só do próprio computador</strong><p>Aceita conexões apenas em 127.0.0.1; ninguém de fora consegue acessá-la.</p></div></div>
+          <div class="check-item">${icon("shield")}<div><strong>Uma pasta fixa</strong><p>O repositório é definido quando a ponte liga; a página não consegue apontar para outra pasta.</p></div></div>
+          <div class="check-item">${icon("shield")}<div><strong>Comandos controlados</strong><p>Executa só o pytest, o Cosmic Ray e a análise de código, sem passar pelo shell do sistema e com tempo limite (30 min para o pytest, 2 h para a mutação).</p></div></div>
+          <div class="check-item">${icon("shield")}<div><strong>Nada sai da máquina</strong><p>O código e os resultados não são enviados para nenhum serviço externo.</p></div></div>
+        </div></section>
+    </div>
+
+    ${homeSection(3, "A rastreabilidade, com um exemplo real", "Tudo na ferramenta tem um identificador, e cada um aponta para o anterior. É assim que um defeito volta até o requisito que o originou.")}
+    <section class="panel"><div class="panel-body"><div class="chain">${chain.map(([id, kind, text], index) => `<div class="chain-item"><span>${kind}</span><strong>${id}</strong><small>${text}</small></div>${index < chain.length - 1 ? `<span class="chain-arrow">${icon("arrow")}</span>` : ""}`).join("")}</div>
+      <p class="chain-note">Leitura: o requisito <b>Reservar quartos</b> tem a classe inválida <b>menos de 1 hóspede</b>; o caso <b>CT-009</b> testa essa classe; no código original ele falhou (a reserva foi aceita) e revelou o <b>DEF-03</b>, corrigido no fork. Abra o CT-009 em <button class="link-btn" data-route="funcional">Teste funcional</button> para ver tudo isso na prática.</p></div></section>
+
+    ${homeSection(4, "Cada item do menu", "O que cada página mostra e o que dá para fazer nela. Clique em um cartão para abrir a página.")}
+    ${MENU_GUIDE.map(([group, note, items]) => `<div class="guide-group"><div class="guide-label">${group} <small>${note}</small></div><div class="guide-grid">${items.map(([key, ico, label, shows, does]) => `<button class="guide-card" data-route="${key}"><div class="guide-head"><span class="metric-icon">${icon(ico)}</span><strong>${label}</strong><span class="guide-go">${icon("arrow")}</span></div><p>${shows}</p><p class="guide-do"><b>Você pode:</b> ${does}</p></button>`).join("")}</div></div>`).join("")}
+    <div class="guide-group"><div class="guide-label">Barra do topo <small>em todas as páginas</small></div><div class="guide-grid">
+      <button class="guide-card" data-action="open-project"><div class="guide-head"><span class="metric-icon">${icon("settings")}</span><strong>Configurar</strong><span class="guide-go">${icon("arrow")}</span></div><p>Nome do projeto, repositório, meta de cobertura, etapa atual e os ajustes da ponte (caminho, endereço, ferramenta de mutação).</p><p class="guide-do"><b>Você pode:</b> mudar a etapa atual, que define onde a cobertura importada é registrada.</p></button>
+      <button class="guide-card" data-action="open-case"><div class="guide-head"><span class="metric-icon">${icon("plus")}</span><strong>Novo caso</strong><span class="guide-go">${icon("arrow")}</span></div><p>Atalho para cadastrar um caso de teste de qualquer página.</p><p class="guide-do"><b>Você pode:</b> informar requisito, classe, entrada, passos e resultado esperado.</p></button>
+    </div></div>
+
+    ${homeSection(5, "Onde ficam os dados", "A ferramenta não tem servidor nem banco de dados.")}
+    <div class="scope-grid home-scope">
+      <div class="scope-item"><span class="req-index">No navegador</span><strong>Salvo no próprio navegador</strong><span class="sub-cell">Tudo fica guardado no armazenamento local do navegador de quem abre o site. Nada é enviado para servidor.</span></div>
+      <div class="scope-item"><span class="req-index">Ao abrir</span><strong>Estudo oficial carregado sozinho</strong><span class="sub-cell">Se existir um estudo publicado mais novo que o salvo no navegador, ele é carregado automaticamente.</span></div>
+      <div class="scope-item"><span class="req-index">Cópias</span><strong>Backup, CSV e PDF</strong><span class="sub-cell">Em Dados e exportação: backup JSON (restaura tudo), CSV dos casos (abre no Excel) e o relatório em PDF.</span></div>
+    </div>
+
+    ${homeSection(6, "Perguntas frequentes", "As dúvidas mais comuns sobre a ferramenta, em poucas palavras.")}
+    <section class="panel faq">${faq.map(([question, answer], index) => `<details ${index === 0 ? "open" : ""}><summary>${question}</summary><p>${answer}</p></details>`).join("")}</section>
+
+    <section class="panel about-tech"><div class="panel-body"><span class="inst-kicker">Feita com</span><div class="hero-chips">${["JavaScript + Vite", "jsPDF (relatório)", "Python (ponte e plugin pytest)", "pytest", "coverage.py", "Cosmic Ray", "GitHub Pages + Actions"].map((item) => `<span>${item}</span>`).join("")}</div>
+      <div class="about-links">${extLink("https://github.com/gabrielfjm/vv-testlab", `${icon("github")}<span>Código da ferramenta</span>`)}${extLink("https://github.com/gabrielfjm/Hotel_Management_System", `${icon("fork")}<span>Fork com os testes</span>`)}</div></div></section>`;
 }
 
 function dashboardPage() {
@@ -1413,7 +1516,7 @@ function formatDate(date) {
 function render() {
   const graphScroll = [...document.querySelectorAll(".cfg-scroll")].map((element) => [element.scrollTop, element.scrollLeft]);
   const pageScroll = window.scrollY || 0;
-  const pages = { home: homePage, dashboard: dashboardPage, funcional: () => stagePage("funcional"), estrutural: () => stagePage("estrutural"), mutacao: () => stagePage("mutacao"), requirements: requirementsPage, cases: casesPage, structural: structuralPage, traceability: traceabilityPage, execution: executionPage, integration: integrationPage, defects: defectsPage, data: dataPage };
+  const pages = { home: homePage, sobre: aboutPage, dashboard: dashboardPage, funcional: () => stagePage("funcional"), estrutural: () => stagePage("estrutural"), mutacao: () => stagePage("mutacao"), requirements: requirementsPage, cases: casesPage, structural: structuralPage, traceability: traceabilityPage, execution: executionPage, integration: integrationPage, defects: defectsPage, data: dataPage };
   app.innerHTML = shell((pages[route] || homePage)() + presenterNav());
   document.querySelectorAll(".cfg-scroll").forEach((element, index) => {
     if (graphScroll[index]) [element.scrollTop, element.scrollLeft] = graphScroll[index];

@@ -37,6 +37,20 @@ test("abre na caracterização do projeto, com links e métricas, e segue para a
   expect(document.querySelector('.nav-item.active').textContent).toContain("Visão geral dos testes");
 });
 
+test("a página final explica a ferramenta, a integração e cada item do menu", () => {
+  click(document.querySelector('.nav-item[data-route="sobre"]'));
+  const content = document.querySelector(".content");
+  expect(content.querySelector(".about-hero h1").textContent).toBe("V&V TestLab");
+  for (const endpoint of ["GET /health", "POST /run", "POST /mutation", "POST /graphs"]) expect(content.textContent).toContain(endpoint);
+  // Todo item do menu (menos a própria página) tem um cartão no guia.
+  const guided = [...content.querySelectorAll(".guide-card[data-route]")].map((card) => card.dataset.route);
+  const menu = [...document.querySelectorAll(".nav-item")].map((item) => item.dataset.route).filter((key) => key !== "sobre");
+  expect(guided.sort()).toEqual(menu.sort());
+  expect(content.querySelectorAll(".faq details")).toHaveLength(6);
+  expect(content.querySelector(".presenter-btn.restart").dataset.route).toBe("home");
+  click(content.querySelector('.guide-card[data-route="dashboard"]'));
+});
+
 test("a visão geral resume as três etapas", () => {
   const text = document.querySelector(".content").textContent;
   expect(text).toContain("os mesmos casos nas 3 etapas");
