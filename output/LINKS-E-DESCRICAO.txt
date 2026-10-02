@@ -1,0 +1,93 @@
+VERIFICAÇÃO E VALIDAÇÃO DE SOFTWARE
+Projeto Técnico - Teste de Software de Terceiros
+
+Aluno: Gabriel Felipe Jess Meira (Mestrado - PUCPR, bolsista CAPES)
+Professor: Prof. Dr. Leo Natan Paschoal
+Sistema testado: Hotel Management System (Python, Flask, SQLite), de Crystal Yuecen Wang
+
+
+DESCRIÇÃO
+---------
+O Hotel Management System é uma aplicação web de gestão hoteleira: o hóspede cria
+uma conta, consulta quartos livres, reserva um ou mais quartos (com custo pelas
+diárias), altera, cancela e registra o pagamento.
+
+O recorte testado são os três requisitos da reserva de quartos:
+  REQ-01 Reservar quartos
+  REQ-02 Data de entrada (check-in)
+  REQ-03 Data de saída (check-out)
+
+As três técnicas foram aplicadas na ordem exigida, sempre sobre os mesmos 15
+casos de teste (as etapas seguintes ampliam alguns deles, sem criar casos novos):
+
+  1. Funcional (pytest): 22 classes de equivalência e análise do valor limite.
+     No código original, 9 dos 15 casos falharam e confirmaram 9 defeitos.
+  2. Estrutural (coverage.py): cobertura de comandos 95,2% -> 100% e de desvios
+     85,3% -> 97,1% (o único desvio restante é inviável). Revelou mais 1 defeito.
+  3. Correção: os 10 defeitos foram corrigidos no fork, em commits separados,
+     antes da mutação. No código corrigido: 100% de comandos e de desvios.
+  4. Baseado em defeitos (Cosmic Ray): 141 mutantes, sem amostragem.
+     Escore = mortos / (gerados - equivalentes) x 100:
+       rodada inicial 127 / (141 - 7) = 94,8%
+       rodada final   134 / (141 - 7) = 100,0%
+     (sem descontar os 7 equivalentes: 90,1% -> 95,0%)
+
+Testes complementares de dois requisitos secundários (consulta e cancelamento)
+revelaram outros 9 defeitos, também corrigidos (19 no total).
+
+
+LINKS
+-----
+Ferramenta de gestão dos testes (V&V TestLab), com o estudo carregado:
+  https://gabrielfjm.github.io/vv-testlab/
+
+Fork com os testes, as correções e as evidências:
+  https://github.com/gabrielfjm/Hotel_Management_System
+    Testes pytest:           https://github.com/gabrielfjm/Hotel_Management_System/tree/main/tests
+    Evidências por etapa:    https://github.com/gabrielfjm/Hotel_Management_System/tree/main/evidencias
+    Relatório técnico (PDF): https://github.com/gabrielfjm/Hotel_Management_System/blob/main/docs/relatorio-tecnico.pdf
+    Correções (original x corrigido):
+                             https://github.com/gabrielfjm/Hotel_Management_System/compare/sut-original...sut-corrigido
+
+Repositório original do sistema (versão testada: commit 71b396b):
+  https://github.com/CrystalWang1225/Hotel_Management_System
+
+Código-fonte da ferramenta V&V TestLab:
+  https://github.com/gabrielfjm/vv-testlab
+
+
+CONTEÚDO DESTE ZIP
+------------------
+Relatorio-Tecnico-VV-Gabriel-Meira.pdf   relatório técnico completo, com todos os dados
+LINKS-E-DESCRICAO.txt                    este arquivo
+estudo-completo/                         todo o restante do estudo (ver estudo-completo/LEIA-ME.md)
+  1-sistema-testado-hotel/   código do sistema (hotel/), testes (tests/), evidências de cada
+                             etapa (evidencias/), relatório e slides (docs/) e scripts para
+                             reproduzir tudo (etapas.ps1 / etapas.sh). É o fork, com o histórico git.
+  2-ferramenta-vv-testlab/   código da ferramenta de gestão dos testes e seus manuais
+  3-apresentacao/            os 2 slides da apresentação e os slides de apoio
+
+
+ONDE ESTÁ O CÓDIGO (pasta estudo-completo/1-sistema-testado-hotel/)
+---------------------------------------------------------------------
+Sistema testado:
+  hotel/views.py    rotas e regras de negócio; reserve() e cal_cost() são o recorte
+  hotel/models.py   6 classes de modelo (User, Room_type, Rooms, Reservations, Booked, Payment)
+  hotel/forms.py    6 classes de formulário (SignUpForm, SignInForm, AboutUserForm,
+                    CheckAvailForm, ReserveForm, PaymentForm)
+Testes (pytest):
+  tests/test_01_funcional.py    15 casos CT-001 a CT-015 (classes de equivalência e valor limite)
+  tests/test_02_estrutural.py   3 ampliações da etapa estrutural
+  tests/test_03_mutacao.py      4 ampliações da etapa de mutação
+  tests/test_04_secundarios.py  14 casos complementares (consulta e cancelamento)
+  tests/conftest.py             base de cada teste (banco em memória, quartos e usuários)
+  tests/classes_equivalencia.json  catálogo das classes de equivalência
+
+
+COMO EXECUTAR
+-------------
+Requer uv (https://docs.astral.sh/uv/). Na pasta estudo-completo/1-sistema-testado-hotel/:
+  Windows:        .\setup_local.ps1   e depois   .\etapas.ps1
+  Linux / macOS:  ./setup.sh          e depois   ./etapas.sh
+O etapas roda as três etapas (no código original e no corrigido) e grava as evidências.
+Só os testes, no código corrigido:  .venv\Scripts\python -m pytest   (36 testes)

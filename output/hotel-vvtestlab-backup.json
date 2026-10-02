@@ -10974,12 +10974,12 @@
           "2020-11-30",
           "2020-12-14"
         ],
-        "forkCommits": 37,
-        "forkNovosCommits": 29,
+        "forkCommits": 38,
+        "forkNovosCommits": 30,
         "forkUltimo": {
-          "hash": "13528e3",
+          "hash": "293c1a2",
           "data": "2026-10-01",
-          "mensagem": "README: link para o V&V TestLab online"
+          "mensagem": "iniciar-integracao.ps1 encontra a ponte também com a ferramenta ao lado do repositório"
         },
         "tags": [
           "sut-corrigido",
@@ -11931,5 +11931,5 @@
       ]
     }
   },
-  "studyVersion": "7e551d219e58"
+  "studyVersion": "7ad660754bc2"
 }
