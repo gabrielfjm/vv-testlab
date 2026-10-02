@@ -10974,12 +10974,12 @@
           "2020-11-30",
           "2020-12-14"
         ],
-        "forkCommits": 38,
-        "forkNovosCommits": 30,
+        "forkCommits": 39,
+        "forkNovosCommits": 31,
         "forkUltimo": {
-          "hash": "293c1a2",
+          "hash": "5949c12",
           "data": "2026-10-01",
-          "mensagem": "iniciar-integracao.ps1 encontra a ponte também com a ferramenta ao lado do repositório"
+          "mensagem": "Escore de mutação pela fórmula da disciplina: mortos ÷ (gerados − equivalentes)"
         },
         "tags": [
           "sut-corrigido",
@@ -11931,5 +11931,5 @@
       ]
     }
   },
-  "studyVersion": "7ad660754bc2"
+  "studyVersion": "47517cc7b35d"
 }
