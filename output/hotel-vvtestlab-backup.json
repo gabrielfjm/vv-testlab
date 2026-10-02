@@ -10969,12 +10969,12 @@
           "2020-11-30",
           "2020-12-14"
         ],
-        "forkCommits": 36,
-        "forkNovosCommits": 28,
+        "forkCommits": 37,
+        "forkNovosCommits": 29,
         "forkUltimo": {
-          "hash": "ac1aac3",
+          "hash": "13528e3",
           "data": "2026-10-01",
-          "mensagem": "Atualiza a descrição das marcas de etapa e dos defeitos dos testes complementares"
+          "mensagem": "README: link para o V&V TestLab online"
         },
         "tags": [
           "sut-corrigido",
@@ -10985,5 +10985,5 @@
       "diagramaER": "diagrama-er.png"
     }
   },
-  "studyVersion": "c1ba45166ae7"
+  "studyVersion": "5706ad8c7307"
 }
